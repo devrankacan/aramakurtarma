@@ -16,8 +16,9 @@ class AccreditationRequirementAdmin(admin.ModelAdmin):
 
 @admin.register(InventoryItem)
 class InventoryItemAdmin(admin.ModelAdmin):
-    list_display = ("category", "serial_number", "owner_team", "status", "expires_at")
+    list_display = ("code", "category", "serial_number", "owner_team", "status", "expires_at")
     list_filter = ("status", "category", "owner_team")
+    search_fields = ("code", "serial_number")
 
 
 @admin.register(CustodyAssignment)

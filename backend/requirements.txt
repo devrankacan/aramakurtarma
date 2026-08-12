@@ -10,3 +10,4 @@ django-simple-history>=3.7,<3.8
 cryptography>=42,<43
 requests>=2.32,<3
 django-redis>=5.4,<5.5
+Pillow>=10,<11

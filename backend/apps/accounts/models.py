@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from apps.forms_app.fields import EncryptedTextField
@@ -9,6 +10,13 @@ class User(AbstractUser):
     """Dernek personeli/gönüllüsü. Ekip üyeliği ve rolleri apps.teams üzerinden yönetilir."""
 
     phone_number = models.CharField("Telefon Numarası", max_length=20, blank=True)
+    avatar = models.ImageField(
+        "Profil Fotoğrafı",
+        upload_to="avatars/%Y/%m/",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+    )
 
     class Meta:
         verbose_name = "Kullanıcı"

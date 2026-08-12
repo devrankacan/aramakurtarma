@@ -4,7 +4,21 @@
 <h2>Gönüllü Başvuru Formu</h2>
 <form method="post" novalidate>
   {% csrf_token %}
-  {{ form.as_p }}
+  {% for field in form %}
+    {% if field.field.widget.input_type == "checkbox" %}
+      <div class="consent-field">
+        {{ field }}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      </div>
+    {% else %}
+      <p>
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+      </p>
+    {% endif %}
+    {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
+  {% endfor %}
   <button type="submit">Başvuruyu Gönder</button>
 </form>
 {% endblock %}

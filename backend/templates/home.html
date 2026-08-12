@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="grid">
   <a class="card" href="{% url 'volunteer_apply' %}">
@@ -32,7 +33,12 @@
 </div>
 
 <section class="panel quake-panel">
-  <h2>Son Depremler <span class="source-tag">AFAD</span></h2>
+  <h2>
+    Son Depremler
+    <a class="source-tag" href="https://deprem.afad.gov.tr/" target="_blank" rel="noopener" title="Veri kaynağı: AFAD">
+      <img src="{% static 'branding/afad-logo.png' %}" alt="AFAD">
+    </a>
+  </h2>
   <p class="muted">Veriler AFAD'ın resmi servisinden otomatik çekilir, birkaç dakikada bir güncellenir.</p>
 
   {% if earthquakes %}
@@ -88,9 +94,10 @@
   .card-disabled:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-color: var(--border); }
 
   .quake-panel .source-tag {
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.4px; color: var(--accent);
-    border: 1px solid var(--accent); border-radius: 999px; padding: 0.15rem 0.55rem; vertical-align: middle; margin-left: 0.5rem;
+    display: inline-flex; align-items: center; vertical-align: middle; margin-left: 0.65rem;
+    padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: #fff;
   }
+  .quake-panel .source-tag img { height: 18px; display: block; }
   .muted { color: var(--muted); font-size: 0.9rem; }
   .quake-table-wrap { overflow-x: auto; }
   .quake-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }

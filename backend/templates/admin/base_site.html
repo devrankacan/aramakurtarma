@@ -16,3 +16,21 @@
 {{ block.super }}
 <link rel="icon" type="image/png" href="{% static 'branding/logo.png' %}">
 {% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  body.login {
+    position: relative;
+    background: #0f2f4d;
+  }
+  body.login::before {
+    content: "";
+    position: fixed;
+    inset: -10px;
+    background: url('{% static "branding/ekip-foto.png" %}') center/cover no-repeat;
+    filter: blur(16px) brightness(0.5);
+    z-index: -1;
+  }
+</style>
+{% endblock %}

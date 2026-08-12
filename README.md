@@ -72,7 +72,7 @@ Bu proje sunucudaki başka projelerle aynı VPS'i paylaşacaksa:
 
 Admin panelde **Bildirim ve Toplu İletişim → Toplu SMS Gönderimleri**'nden:
 
-1. **Toplu SMS Gönderimi ekle** — hedef ekip(ler)i seç (ya da "Tüm Kullanıcılar" işaretle) ve mesaj metnini gir (taslak olarak kaydedilir).
+1. **Toplu SMS Gönderimi ekle** — hedef ekip(ler)i seç (tüm ekiplere göndermek için "Tümünü seçin" linkini kullanabilirsin) ve mesaj metnini gir (taslak olarak kaydedilir).
 2. Listeden ilgili kaydı seçip **"Seçili taslakları gönder"** aksiyonunu çalıştır.
 
 `.env` içindeki `NAC_SMS_*` değişkenlerini doldurman gerekiyor (`apps/notifications/sms.py`).

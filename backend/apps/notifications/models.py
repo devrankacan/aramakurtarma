@@ -6,7 +6,7 @@ from apps.teams.models import Team
 
 
 class SmsCampaign(models.Model):
-    """Ekiplere (ya da tüm kullanıcılara) gönderilen, ya da taslak halindeki toplu SMS gönderimi."""
+    """Seçili ekip(ler)e gönderilen, ya da taslak halindeki toplu SMS gönderimi."""
 
     class Status(models.TextChoices):
         DRAFT = "draft", "Taslak"
@@ -14,13 +14,7 @@ class SmsCampaign(models.Model):
         FAILED = "failed", "Başarısız"
 
     teams = models.ManyToManyField(
-        Team, blank=True, related_name="sms_campaigns", verbose_name="Hedef Ekipler"
-    )
-    include_all_users = models.BooleanField(
-        "Tüm Kullanıcılar",
-        default=False,
-        help_text="İşaretlenirse ekip seçimi yok sayılır, telefon numarası olan tüm "
-        "kullanıcılara gönderilir.",
+        Team, related_name="sms_campaigns", verbose_name="Hedef Ekipler"
     )
     message = models.TextField(
         "Mesaj Metni",
@@ -50,8 +44,6 @@ class SmsCampaign(models.Model):
         return f"{self.target_display()} — {self.get_status_display()}"
 
     def target_display(self):
-        if self.include_all_users:
-            return "Tüm Kullanıcılar"
         if self.pk:
             names = list(self.teams.values_list("name", flat=True))
             if names:
@@ -61,11 +53,8 @@ class SmsCampaign(models.Model):
     target_display.short_description = "Hedef"
 
     def resolve_recipients(self):
-        """Seçili ekiplerdeki (ya da tüm) telefon numarası girilmiş kullanıcıları döner."""
+        """Seçili ekip(ler)deki, telefon numarası girilmiş aktif üyeleri döner."""
         User = get_user_model()
-        if self.include_all_users:
-            return User.objects.exclude(phone_number="").distinct()
-
         team_ids = list(self.teams.values_list("id", flat=True))
         return (
             User.objects.filter(

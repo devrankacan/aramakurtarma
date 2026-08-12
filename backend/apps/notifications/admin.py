@@ -19,7 +19,7 @@ class SmsRecipientLogInline(admin.TabularInline):
 class SmsCampaignAdmin(admin.ModelAdmin):
     list_display = ("target_display", "status", "recipient_count", "created_by", "created_at", "sent_at")
     list_filter = ("status", "teams")
-    filter_horizontal = ("teams",)
+    autocomplete_fields = ("teams",)
     readonly_fields = ("status", "created_by", "sent_at", "recipient_count", "provider_response")
     inlines = [SmsRecipientLogInline]
     actions = ["send_campaign"]

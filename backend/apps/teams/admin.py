@@ -7,6 +7,7 @@ from .models import Role, Team, TeamMembership, UserTeamRole
 class TeamAdmin(admin.ModelAdmin):
     list_display = ("name", "city", "created_at")
     list_filter = ("city",)
+    search_fields = ("name", "city")
 
 
 @admin.register(Role)

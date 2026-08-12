@@ -1,17 +1,12 @@
 from django.contrib import admin
 
-from .models import Branch, Role, Team, TeamMembership, UserTeamRole
-
-
-@admin.register(Branch)
-class BranchAdmin(admin.ModelAdmin):
-    list_display = ("name", "city", "created_at")
+from .models import Role, Team, TeamMembership, UserTeamRole
 
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ("name", "branch", "created_at")
-    list_filter = ("branch",)
+    list_display = ("name", "city", "created_at")
+    list_filter = ("city",)
 
 
 @admin.register(Role)

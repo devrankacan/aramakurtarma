@@ -3,37 +3,20 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 
-class Branch(models.Model):
-    """Şube."""
-
-    name = models.CharField("Şube Adı", max_length=200)
-    city = models.CharField("Şehir", max_length=100, blank=True)
-    created_at = models.DateTimeField("Oluşturulma Tarihi", auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Şube"
-        verbose_name_plural = "Şubeler"
-
-    def __str__(self):
-        return self.name
-
-
 class Team(models.Model):
-    """Ekip (ör. Arama Kurtarma Ekibi 1)."""
+    """Ekip (ör. Arama Kurtarma Ekibi 1). Ekipler şehir bazlı ayrılır."""
 
-    branch = models.ForeignKey(
-        Branch, on_delete=models.PROTECT, related_name="teams", verbose_name="Şube"
-    )
     name = models.CharField("Ekip Adı", max_length=200)
+    city = models.CharField("Şehir", max_length=100)
     created_at = models.DateTimeField("Oluşturulma Tarihi", auto_now_add=True)
 
     class Meta:
         verbose_name = "Ekip"
         verbose_name_plural = "Ekipler"
-        unique_together = ("branch", "name")
+        unique_together = ("city", "name")
 
     def __str__(self):
-        return f"{self.name} ({self.branch.name})"
+        return f"{self.name} ({self.city})"
 
 
 class Role(models.Model):

@@ -17,7 +17,7 @@ Her ana başlık ayrı bir Django app'i (`backend/apps/`):
 | App | Kapsam | Durum |
 |---|---|---|
 | `accounts` | Kullanıcı modeli | Kuruldu |
-| `teams` | Şube/Ekip hiyerarşisi, rol/yetki | Kuruldu |
+| `teams` | Şehir bazlı ekip yönetimi, rol/yetki | Kuruldu |
 | `accreditation` | Akreditasyon seviyeleri, kişisel sertifikalar | Kuruldu |
 | `inventory` | Envanter, akreditasyon-bazlı zorunlu ekipman, zimmet | Kuruldu |
 | `dispatch` | İhbar, sevk, canlı saha durumu | Yer tutucu (sonraki tur) |

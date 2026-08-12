@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="back" href="{% url 'home' %}">&larr; Ana sayfa</a>
+<h2>Gönüllü Başvuru Formu</h2>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Başvuruyu Gönder</button>
+</form>
+{% endblock %}

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "apps.calendar_app",
     "apps.forms_app",
     "apps.notifications",
+    "apps.content",
 ]
 
 MIDDLEWARE = [
@@ -110,3 +111,13 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# KVKK özel nitelikli veri (ör. sağlık beyanı) için alan-bazlı şifreleme anahtarı.
+# Aşağıdaki değer sadece dev ortam için geçerli bir placeholder'dır — üretimde
+# .env içinde gerçek bir anahtarla EZİLMELİDİR, aksi halde bu placeholder tüm
+# ortamlarda aynı olacağı için şifreleme anlamsızlaşır. Yeni anahtar üretmek için:
+#   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+FIELD_ENCRYPTION_KEY = env(
+    "FIELD_ENCRYPTION_KEY",
+    default="H01F4YY6aW7d7lS6YBPShNjbGGm8_4B-xzybvFcoNzg=",
+)

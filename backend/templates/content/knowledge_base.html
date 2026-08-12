@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="back" href="{% url 'home' %}">&larr; Ana sayfa</a>
+<h2>Bilgi Bankası</h2>
+{% if documents %}
+<ul>
+  {% for doc in documents %}
+    <li>
+      <a href="{{ doc.file.url }}" target="_blank" rel="noopener">{{ doc.title }}</a>
+      {% if doc.description %} — {{ doc.description }}{% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Henüz doküman eklenmedi.</p>
+{% endif %}
+{% endblock %}

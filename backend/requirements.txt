@@ -7,3 +7,4 @@ channels-redis>=4.2,<4.3
 daphne>=4.1,<4.2
 django-cors-headers>=4.4,<4.5
 django-simple-history>=3.7,<3.8
+cryptography>=42,<43

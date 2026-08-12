@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <a class="card" href="{% url 'volunteer_apply' %}">
+    <h2>Gönüllü Ol</h2>
+    <p>Arama kurtarma ekibimize katılmak için başvuru formunu doldurun.</p>
+  </a>
+  <a class="card" href="/admin/login/">
+    <h2>Giriş Yap</h2>
+    <p>Ekip üyesi ve yöneticiler için giriş.</p>
+  </a>
+  <a class="card" href="{% url 'knowledge_base' %}">
+    <h2>Bilgi Bankası</h2>
+    <p>Eğitim doküman ve prosedürlerine buradan ulaşabilirsiniz.</p>
+  </a>
+  <div class="card card-disabled">
+    <h2>Duyurular</h2>
+    <p>Yakında burada.</p>
+  </div>
+</div>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  .card { display: block; background: #fff; border-radius: 10px; padding: 1.5rem; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e2e6ea; transition: box-shadow .15s, transform .15s; }
+  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); }
+  .card h2 { margin: 0 0 0.5rem; font-size: 1.05rem; color: var(--brand-dark); }
+  .card p { margin: 0; font-size: 0.9rem; color: #555; }
+  .card-disabled { opacity: 0.6; cursor: default; }
+</style>
+{% endblock %}

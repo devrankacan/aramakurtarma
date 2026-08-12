@@ -42,7 +42,9 @@ class SmsCampaignAdmin(admin.ModelAdmin):
                 )
                 continue
 
-            results = provider.send_bulk(recipients, campaign.message)
+            results = provider.send_bulk(
+                recipients, campaign.message, title=f"AramaKurtarma-{campaign.pk}"
+            )
             SmsRecipientLog.objects.bulk_create(
                 [
                     SmsRecipientLog(

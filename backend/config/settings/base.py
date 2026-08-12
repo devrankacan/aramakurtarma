@@ -135,11 +135,10 @@ FIELD_ENCRYPTION_KEY = env(
     default="H01F4YY6aW7d7lS6YBPShNjbGGm8_4B-xzybvFcoNzg=",
 )
 
-# NAC (nac.com.tr) toplu SMS API kimlik bilgileri. Gerçek uç nokta/parametre
-# adları NAC'ın API dokümanına göre doğrulanıp güncellenmelidir
-# (bkz. apps/notifications/sms.py).
-NAC_SMS_API_URL = env("NAC_SMS_API_URL", default="")
-NAC_SMS_API_KEY = env("NAC_SMS_API_KEY", default="")
+# NAC (nac.com.tr) toplu SMS API kimlik bilgileri (bkz. apps/notifications/sms.py).
+# Kimlik doğrulama HTTP Basic Auth ile yapılıyor (NAC panelindeki API
+# kullanıcı adı/şifresi), ayrı bir API key yok.
 NAC_SMS_USERNAME = env("NAC_SMS_USERNAME", default="")
 NAC_SMS_PASSWORD = env("NAC_SMS_PASSWORD", default="")
 NAC_SMS_SENDER_ID = env("NAC_SMS_SENDER_ID", default="")
+NAC_SMS_GATEWAY_ID = env("NAC_SMS_GATEWAY_ID", default="")

@@ -75,10 +75,13 @@ Admin panelde **Bildirim ve Toplu İletişim → Toplu SMS Gönderimleri**'nden:
 1. **Toplu SMS Gönderimi ekle** — hedef ekip(ler)i seç (tüm ekiplere göndermek için "Tümünü seçin" linkini kullanabilirsin) ve mesaj metnini gir (taslak olarak kaydedilir).
 2. Listeden ilgili kaydı seçip **"Seçili taslakları gönder"** aksiyonunu çalıştır.
 
-`.env` içindeki `NAC_SMS_*` değişkenlerini doldurman gerekiyor (`apps/notifications/sms.py`).
-**Önemli:** NAC'ın gerçek API uç noktası/istek formatı bu geliştirme ortamından doğrulanamadı
-(nac.com.tr ağ politikası tarafından engelliydi) — `sms.py` içindeki istek şekli yaygın SMS API
-desenine göre yazıldı ama NAC'ın kendi dokümanıyla karşılaştırılıp gerekirse düzeltilmeli.
+`.env` içindeki `NAC_SMS_*` değişkenlerini doldurman gerekiyor (`apps/notifications/sms.py`):
+`NAC_SMS_USERNAME`, `NAC_SMS_PASSWORD` (HTTP Basic Auth için), `NAC_SMS_SENDER_ID` (NAC'ta onaylı
+gönderen adın), `NAC_SMS_GATEWAY_ID` (opsiyonel). Entegrasyon NAC'ın resmi `POST
+https://smslogin.nac.com.tr:9588/sms/create` (MultiSms) uç noktasına göre yazıldı ve
+mocklanmış istek/yanıt ile doğrulandı. NAC tek istekteki tüm alıcılar için tek bir paket
+(`pkgID`) sonucu döndürüyor, numara bazlı değil — bu yüzden bir gönderimdeki tüm alıcılar aynı
+başarı/hata durumunu paylaşır.
 
 ## Notlar
 

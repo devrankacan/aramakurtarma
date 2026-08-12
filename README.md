@@ -16,7 +16,7 @@ Her ana başlık ayrı bir Django app'i (`backend/apps/`):
 
 | App | Kapsam | Durum |
 |---|---|---|
-| `accounts` | Kullanıcı modeli | Kuruldu |
+| `accounts` | Kullanıcı modeli, şifreli Sağlık Profili (KVKK) | Kuruldu |
 | `teams` | Şehir bazlı ekip yönetimi, rol/yetki | Kuruldu |
 | `accreditation` | Akreditasyon seviyeleri, kişisel sertifikalar | Kuruldu |
 | `inventory` | Envanter, akreditasyon-bazlı zorunlu ekipman, zimmet | Kuruldu |

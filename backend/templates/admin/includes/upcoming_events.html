@@ -1,0 +1,18 @@
+<div class="module" id="upcoming-events-module">
+    <h2>Yaklaşan Faaliyetler</h2>
+    {% if events %}
+    <ul class="actionlist">
+        {% for event in events %}
+        <li>
+            <a href="{% url 'admin:calendar_app_event_change' event.pk %}">{{ event.title }}</a>
+            <br>
+            <span class="mini quiet">
+                {{ event.start_at|date:"d.m.Y H:i" }}{% if event.location %} · {{ event.location }}{% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Yaklaşan faaliyet yok.</p>
+    {% endif %}
+</div>

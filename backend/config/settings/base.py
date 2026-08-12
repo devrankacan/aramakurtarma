@@ -81,6 +81,19 @@ CHANNEL_LAYERS = {
     },
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("REDIS_URL", default="redis://redis:6379/0"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # Redis kısa süreliğine erişilemez olursa sayfa 500 vermesin,
+            # önbellek atlanıp veri doğrudan (önbelleksiz) çekilsin.
+            "IGNORE_EXCEPTIONS": True,
+        },
+    }
+}
+
 AUTH_USER_MODEL = "accounts.User"
 
 AUTH_PASSWORD_VALIDATORS = [

@@ -6,29 +6,59 @@
   <title>{% block title %}İyilik Derneği Arama Kurtarma{% endblock %}</title>
   <link rel="icon" type="image/png" href="{% static 'branding/logo.png' %}">
   <style>
-    :root { --brand: #1c4f82; --brand-dark: #123a61; }
+    :root {
+      --brand: #1c4f82;
+      --brand-dark: #0f2f4d;
+      --accent: #1aa6b7;
+      --bg: #eef2f6;
+      --card-bg: #ffffff;
+      --text: #1a222c;
+      --muted: #5b6774;
+      --border: #e2e6ea;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #f4f6f8; color: #1a1a1a; }
-    header { background: var(--brand-dark); color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
-    header img { height: 40px; }
-    header h1 { font-size: 1.1rem; margin: 0; }
-    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    header.site-header {
+      background: linear-gradient(120deg, var(--brand-dark), var(--brand) 70%);
+      color: #fff;
+      padding: 1.1rem 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    header.site-header img { height: 42px; border-radius: 50%; background: #fff; padding: 2px; }
+    header.site-header .titles h1 { font-size: 1.15rem; margin: 0; letter-spacing: 0.2px; }
+    header.site-header .titles p { margin: 0.15rem 0 0; font-size: 0.8rem; color: #cfe0f0; }
+    main { max-width: 1150px; margin: 0 auto; padding: 2.25rem 1.5rem 3rem; }
     .messages { list-style: none; padding: 0; margin: 0 0 1.5rem; }
-    .messages li { background: #e6f4ea; border: 1px solid #b7dfc1; color: #1e6b34; padding: 0.75rem 1rem; border-radius: 6px; }
+    .messages li { background: #e6f4ea; border: 1px solid #b7dfc1; color: #1e6b34; padding: 0.75rem 1rem; border-radius: 8px; }
     form p { margin: 0 0 1rem; }
-    form label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
-    form input, form select, form textarea { width: 100%; padding: 0.5rem; border: 1px solid #ccd2d8; border-radius: 6px; font: inherit; }
-    button[type="submit"] { background: var(--brand); color: #fff; border: none; padding: 0.65rem 1.5rem; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+    form label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.92rem; }
+    form input, form select, form textarea {
+      width: 100%; padding: 0.55rem 0.65rem; border: 1px solid #ccd2d8; border-radius: 8px; font: inherit; background: #fff;
+    }
+    form input:focus, form select:focus, form textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    button[type="submit"] {
+      background: var(--brand); color: #fff; border: none; padding: 0.7rem 1.6rem;
+      border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;
+    }
     button[type="submit"]:hover { background: var(--brand-dark); }
-    footer { text-align: center; padding: 2rem 1rem; color: #666; font-size: 0.85rem; }
-    a.back { display: inline-block; margin-bottom: 1rem; color: var(--brand); }
+    footer { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.85rem; }
+    a.back { display: inline-block; margin-bottom: 1.25rem; color: var(--brand); text-decoration: none; font-weight: 600; }
+    a.back:hover { text-decoration: underline; }
+    section.panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 1.75rem; }
+    section.panel h2 { margin-top: 0; }
   </style>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <img src="{% static 'branding/logo.png' %}" alt="İyilik Derneği Arama Kurtarma">
-    <h1>İyilik Derneği Arama Kurtarma</h1>
+    <div class="titles">
+      <h1>İyilik Derneği Arama Kurtarma</h1>
+      <p>Operasyon ve Koordinasyon Platformu</p>
+    </div>
   </header>
   <main>
     {% if messages %}
@@ -38,6 +68,6 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
-  <footer>İyilik Derneği Arama Kurtarma Birimi</footer>
+  <footer>İyilik Derneği Arama Kurtarma Birimi · 2009'dan bu yana</footer>
 </body>
 </html>

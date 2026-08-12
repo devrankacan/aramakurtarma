@@ -2,30 +2,103 @@
 {% block content %}
 <div class="grid">
   <a class="card" href="{% url 'volunteer_apply' %}">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.6-9.1C.9 8.6 2.4 5 6 5c2 0 3.4 1.1 4 2.2C10.6 6.1 12 5 14 5c3.6 0 5.1 3.6 3.6 6.9C19.5 16.4 12 21 12 21z"/></svg>
+    </span>
     <h2>Gönüllü Ol</h2>
     <p>Arama kurtarma ekibimize katılmak için başvuru formunu doldurun.</p>
   </a>
   <a class="card" href="/admin/login/">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+    </span>
     <h2>Giriş Yap</h2>
     <p>Ekip üyesi ve yöneticiler için giriş.</p>
   </a>
   <a class="card" href="{% url 'knowledge_base' %}">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </span>
     <h2>Bilgi Bankası</h2>
     <p>Eğitim doküman ve prosedürlerine buradan ulaşabilirsiniz.</p>
   </a>
   <div class="card card-disabled">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v3a1 1 0 0 0 1 1h2l4 4v-13l-4 4H4a1 1 0 0 0-1 1z"/><path d="M15 8a4 4 0 0 1 0 8"/><path d="M18 5a8 8 0 0 1 0 14"/></svg>
+    </span>
     <h2>Duyurular</h2>
     <p>Yakında burada.</p>
   </div>
 </div>
+
+<section class="panel quake-panel">
+  <h2>Son Depremler <span class="source-tag">AFAD</span></h2>
+  <p class="muted">Veriler AFAD'ın resmi servisinden otomatik çekilir, birkaç dakikada bir güncellenir.</p>
+
+  {% if earthquakes %}
+  <div class="quake-table-wrap">
+    <table class="quake-table">
+      <thead>
+        <tr><th>Tarih (UTC)</th><th>Yer</th><th>Büyüklük</th><th>Derinlik</th></tr>
+      </thead>
+      <tbody>
+        {% for eq in earthquakes %}
+        <tr>
+          <td>{{ eq.date|default:"—" }}</td>
+          <td>{{ eq.location|default:"—" }}</td>
+          <td>
+            {% if eq.magnitude %}
+              <span class="mag-badge {% if eq.magnitude >= 5 %}mag-high{% elif eq.magnitude >= 4 %}mag-mid{% else %}mag-low{% endif %}">
+                {{ eq.magnitude }}
+              </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>{% if eq.depth %}{{ eq.depth }} km{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted">Şu anda AFAD verisine ulaşılamıyor. Canlı verileri
+    <a href="https://deprem.afad.gov.tr/last-earthquakes.html" target="_blank" rel="noopener">AFAD'ın kendi sitesinden</a>
+    görüntüleyebilirsiniz.</p>
+  {% endif %}
+</section>
+
 <style>
-  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2.25rem; }
   @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
-  .card { display: block; background: #fff; border-radius: 10px; padding: 1.5rem; text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e2e6ea; transition: box-shadow .15s, transform .15s; }
-  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-2px); }
-  .card h2 { margin: 0 0 0.5rem; font-size: 1.05rem; color: var(--brand-dark); }
-  .card p { margin: 0; font-size: 0.9rem; color: #555; }
-  .card-disabled { opacity: 0.6; cursor: default; }
+  .card {
+    display: block; background: var(--card-bg); border-radius: 12px; padding: 1.6rem 1.5rem;
+    text-decoration: none; color: inherit; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid var(--border); transition: box-shadow .15s, transform .15s, border-color .15s;
+  }
+  .card:hover { box-shadow: 0 8px 20px rgba(15,47,77,0.12); transform: translateY(-3px); border-color: var(--accent); }
+  .card .icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 10px; margin-bottom: 0.9rem;
+    background: rgba(28,79,130,0.08); color: var(--brand);
+  }
+  .card .icon svg { width: 22px; height: 22px; }
+  .card h2 { margin: 0 0 0.45rem; font-size: 1.05rem; color: var(--brand-dark); }
+  .card p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+  .card-disabled { opacity: 0.55; cursor: default; }
+  .card-disabled:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-color: var(--border); }
+
+  .quake-panel .source-tag {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.4px; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 999px; padding: 0.15rem 0.55rem; vertical-align: middle; margin-left: 0.5rem;
+  }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  .quake-table-wrap { overflow-x: auto; }
+  .quake-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
+  .quake-table th { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--border); color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px; }
+  .quake-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+  .mag-badge { display: inline-block; min-width: 2.2em; text-align: center; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; }
+  .mag-low { background: #e6f4ea; color: #1e6b34; }
+  .mag-mid { background: #fdecd2; color: #9a5b00; }
+  .mag-high { background: #fbdede; color: #a11d1d; }
 </style>
 {% endblock %}

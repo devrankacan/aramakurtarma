@@ -8,3 +8,5 @@ daphne>=4.1,<4.2
 django-cors-headers>=4.4,<4.5
 django-simple-history>=3.7,<3.8
 cryptography>=42,<43
+requests>=2.32,<3
+django-redis>=5.4,<5.5

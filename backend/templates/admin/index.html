@@ -18,8 +18,11 @@
 {% endblock %}
 
 {% block sidebar %}
-{% load calendar_tags %}
+{% load calendar_tags content_tags %}
 <div id="content-related">
     {% upcoming_events %}
+    {% upcoming_anniversaries %}
+    {% weather_widget %}
+    {% upcoming_birthdays %}
 </div>
 {% endblock %}

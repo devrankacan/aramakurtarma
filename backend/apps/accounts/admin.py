@@ -41,7 +41,17 @@ class UserAdmin(DjangoUserAdmin):
         (None, {"fields": ("username", "password")}),
         (
             "Kişisel Bilgiler",
-            {"fields": ("first_name", "last_name", "email", "phone_number", "avatar", "avatar_preview")},
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "phone_number",
+                    "birth_date",
+                    "avatar",
+                    "avatar_preview",
+                )
+            },
         ),
         ("Yetkiler", {"fields": ("is_active", "is_staff", "is_superuser")}),
         ("Önemli Tarihler", {"fields": ("last_login", "date_joined")}),

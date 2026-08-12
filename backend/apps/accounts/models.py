@@ -10,6 +10,7 @@ class User(AbstractUser):
     """Dernek personeli/gönüllüsü. Ekip üyeliği ve rolleri apps.teams üzerinden yönetilir."""
 
     phone_number = models.CharField("Telefon Numarası", max_length=20, blank=True)
+    birth_date = models.DateField("Doğum Tarihi", null=True, blank=True)
     avatar = models.ImageField(
         "Profil Fotoğrafı",
         upload_to="avatars/%Y/%m/",

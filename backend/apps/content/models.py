@@ -22,3 +22,19 @@ class KnowledgeBaseDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class WeatherLocation(models.Model):
+    """Admin ana sayfasındaki hava durumu kutusunda gösterilecek il."""
+
+    name = models.CharField("İl", max_length=100, unique=True)
+    is_active = models.BooleanField("Aktif", default=True)
+    order = models.PositiveSmallIntegerField("Sıra", default=0)
+
+    class Meta:
+        verbose_name = "Hava Durumu İli"
+        verbose_name_plural = "Hava Durumu İlleri"
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name

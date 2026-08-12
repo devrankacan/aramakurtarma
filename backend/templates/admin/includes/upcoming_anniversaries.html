@@ -1,0 +1,16 @@
+<div class="module" id="upcoming-anniversaries-module">
+    <h2>Yaklaşan Yıl Dönümleri</h2>
+    {% if items %}
+    <ul class="actionlist">
+        {% for item in items %}
+        <li>
+            {{ item.membership.user.get_full_name|default:item.membership.user.username }} — {{ item.membership.team.name }}
+            <br>
+            <span class="mini quiet">{{ item.date|date:"d.m.Y" }} · {{ item.years }}. yıl</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Yaklaşan yıl dönümü yok.</p>
+    {% endif %}
+</div>

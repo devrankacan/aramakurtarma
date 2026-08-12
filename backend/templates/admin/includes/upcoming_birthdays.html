@@ -1,0 +1,16 @@
+<div class="module" id="upcoming-birthdays-module">
+    <h2>Yaklaşan Doğum Günleri</h2>
+    {% if items %}
+    <ul class="actionlist">
+        {% for item in items %}
+        <li>
+            {{ item.user.get_full_name|default:item.user.username }}
+            <br>
+            <span class="mini quiet">{{ item.date|date:"d.m.Y" }} · {{ item.age }} yaşına giriyor</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Yaklaşan doğum günü yok.</p>
+    {% endif %}
+</div>

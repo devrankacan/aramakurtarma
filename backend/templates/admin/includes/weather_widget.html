@@ -1,0 +1,19 @@
+<div class="module" id="weather-widget-module">
+    <h2>Hava Durumu</h2>
+    {% if items %}
+    <ul class="actionlist">
+        {% for item in items %}
+        <li>
+            <strong>{{ item.city }}</strong>
+            <br>
+            <span class="mini quiet">
+                {% if item.temperature is not None %}{{ item.temperature }}°C · {% endif %}{{ item.condition }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Gösterilecek il eklenmedi ya da veriye ulaşılamıyor.
+        <a href="{% url 'admin:content_weatherlocation_add' %}">İl ekle</a></p>
+    {% endif %}
+</div>

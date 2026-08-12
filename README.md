@@ -77,6 +77,12 @@ ekip(ler) girilir. Bir faaliyet birden fazla ekibe atanabilir. Admin ana sayfas�
 - Superuser: tüm yaklaşan faaliyetleri görür.
 - Diğer kullanıcılar: sadece aktif üyesi oldukları ekip(ler)e atanmış faaliyetleri görür.
 
+Aynı sidebar'da (aynı görünürlük kuralıyla) ayrıca:
+
+- **Yaklaşan Yıl Dönümleri** — `TeamMembership.joined_at`'e göre önümüzdeki 30 gün içindeki ekibe katılım yıl dönümleri.
+- **Hava Durumu** — **İçerik → Hava Durumu İlleri**'nden eklenen (aktif) illerin güncel sıcaklık/durumu (Open-Meteo, API anahtarı gerekmiyor, 30 dk önbellekli).
+- **Yaklaşan Doğum Günleri** — kullanıcı sayfasındaki "Doğum Tarihi" alanına göre önümüzdeki 30 gün.
+
 ## Toplu SMS (NAC)
 
 Admin panelde **Bildirim ve Toplu İletişim → Toplu SMS Gönderimleri**'nden:

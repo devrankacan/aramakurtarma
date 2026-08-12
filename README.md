@@ -22,8 +22,9 @@ Her ana başlık ayrı bir Django app'i (`backend/apps/`):
 | `inventory` | Envanter, akreditasyon-bazlı zorunlu ekipman, zimmet | Kuruldu |
 | `dispatch` | İhbar, sevk, canlı saha durumu | Yer tutucu (sonraki tur) |
 | `calendar_app` | Birim bazlı görünürlükli etkinlik takvimi | Yer tutucu (sonraki tur) |
-| `forms_app` | Dijital formlar, KVKK özel nitelikli veri şifreleme | Yer tutucu (sonraki tur) |
-| `notifications` | Dinamik filtre + toplu SMS/bildirim | Yer tutucu (sonraki tur) |
+| `forms_app` | Dijital formlar (Gönüllü Başvurusu), KVKK özel nitelikli veri şifreleme | Kuruldu |
+| `content` | Bilgi Bankası (PDF), ana sayfa AFAD deprem verisi | Kuruldu |
+| `notifications` | Dinamik filtre (Bildirim Grubu) + toplu SMS (NAC) | Kuruldu — NAC API uç noktası doğrulanmayı bekliyor |
 
 ## Yerel geliştirme
 
@@ -66,6 +67,19 @@ Bu proje sunucudaki başka projelerle aynı VPS'i paylaşacaksa:
 2. **`COMPOSE_PROJECT_NAME`'i benzersiz tut.** `.env` içindeki bu değer container/network/volume adlarının önekidir; farklı projelerin aynı isimde container'ı olsa bile karışmaz, `docker compose down` yalnızca bu projenin kaynaklarını etkiler.
 3. **Sunucu genelinde etkili komutlardan kaçın.** `docker system prune`, `docker compose down -v` (başka projenin volume'ünü de silebilecek yanlış dizinde çalıştırılırsa), veya diğer projelerin container'larını `docker stop/rm` ile durdurmak gibi işlemler bu projeye özgü olmayan komutlardır — her zaman bu repo dizininde ve sadece bu projeye ait komutları çalıştır.
 4. **İleride subdomain'e bağlarken** sunucuda zaten çalışan bir reverse proxy (nginx/Traefik) varsa, bu projenin nginx'ini host'ta ayrı bir portta (`HTTP_PORT`) tutup, üst seviye reverse proxy'den o porta yönlendirme (`proxy_pass http://127.0.0.1:$HTTP_PORT`) yapman yeterli — bu projenin container'larına dokunman gerekmez.
+
+## Toplu SMS (NAC)
+
+Admin panelde **Bildirim ve Toplu İletişim** bölümünden:
+
+1. **Bildirim Grubu** oluştur — ekip/rol filtresiyle ya da "Tüm Kullanıcılar" seçeneğiyle hedef kitleyi tanımla.
+2. **Toplu SMS Gönderimi** oluştur, hedef grubu ve mesaj metnini gir (taslak olarak kaydedilir).
+3. Listeden ilgili kaydı seçip **"Seçili taslakları gönder"** aksiyonunu çalıştır.
+
+`.env` içindeki `NAC_SMS_*` değişkenlerini doldurman gerekiyor (`apps/notifications/sms.py`).
+**Önemli:** NAC'ın gerçek API uç noktası/istek formatı bu geliştirme ortamından doğrulanamadı
+(nac.com.tr ağ politikası tarafından engelliydi) — `sms.py` içindeki istek şekli yaygın SMS API
+desenine göre yazıldı ama NAC'ın kendi dokümanıyla karşılaştırılıp gerekirse düzeltilmeli.
 
 ## Notlar
 

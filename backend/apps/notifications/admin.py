@@ -1,14 +1,8 @@
 from django.contrib import admin, messages
 from django.utils import timezone
 
-from .models import NotificationSegment, SmsCampaign, SmsRecipientLog
+from .models import SmsCampaign, SmsRecipientLog
 from .sms import NacSmsProvider
-
-
-@admin.register(NotificationSegment)
-class NotificationSegmentAdmin(admin.ModelAdmin):
-    list_display = ("name", "include_all_users", "created_at")
-    filter_horizontal = ("teams", "roles")
 
 
 class SmsRecipientLogInline(admin.TabularInline):
@@ -23,8 +17,9 @@ class SmsRecipientLogInline(admin.TabularInline):
 
 @admin.register(SmsCampaign)
 class SmsCampaignAdmin(admin.ModelAdmin):
-    list_display = ("segment", "status", "recipient_count", "created_by", "created_at", "sent_at")
-    list_filter = ("status", "segment")
+    list_display = ("target_display", "status", "recipient_count", "created_by", "created_at", "sent_at")
+    list_filter = ("status", "teams")
+    filter_horizontal = ("teams",)
     readonly_fields = ("status", "created_by", "sent_at", "recipient_count", "provider_response")
     inlines = [SmsRecipientLogInline]
     actions = ["send_campaign"]
@@ -39,7 +34,7 @@ class SmsCampaignAdmin(admin.ModelAdmin):
         provider = NacSmsProvider()
         for campaign in queryset.filter(status=SmsCampaign.Status.DRAFT):
             recipients = list(
-                campaign.segment.resolve_recipients().values_list("phone_number", flat=True)
+                campaign.resolve_recipients().values_list("phone_number", flat=True)
             )
             if not recipients:
                 self.message_user(

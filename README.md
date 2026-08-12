@@ -70,11 +70,10 @@ Bu proje sunucudaki başka projelerle aynı VPS'i paylaşacaksa:
 
 ## Toplu SMS (NAC)
 
-Admin panelde **Bildirim ve Toplu İletişim** bölümünden:
+Admin panelde **Bildirim ve Toplu İletişim → Toplu SMS Gönderimleri**'nden:
 
-1. **Bildirim Grubu** oluştur — ekip/rol filtresiyle ya da "Tüm Kullanıcılar" seçeneğiyle hedef kitleyi tanımla.
-2. **Toplu SMS Gönderimi** oluştur, hedef grubu ve mesaj metnini gir (taslak olarak kaydedilir).
-3. Listeden ilgili kaydı seçip **"Seçili taslakları gönder"** aksiyonunu çalıştır.
+1. **Toplu SMS Gönderimi ekle** — hedef ekip(ler)i seç (ya da "Tüm Kullanıcılar" işaretle) ve mesaj metnini gir (taslak olarak kaydedilir).
+2. Listeden ilgili kaydı seçip **"Seçili taslakları gönder"** aksiyonunu çalıştır.
 
 `.env` içindeki `NAC_SMS_*` değişkenlerini doldurman gerekiyor (`apps/notifications/sms.py`).
 **Önemli:** NAC'ın gerçek API uç noktası/istek formatı bu geliştirme ortamından doğrulanamadı

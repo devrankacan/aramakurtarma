@@ -45,9 +45,11 @@ class VolunteerApplication(models.Model):
         "Sağlık durumuma ilişkin özel nitelikli verimin bu başvuru kapsamında "
         "işlenmesine açıkça rıza gösteriyorum."
     )
-    consent_given_at = models.DateTimeField(auto_now_add=True)
+    consent_given_at = models.DateTimeField("Başvuru Tarihi", auto_now_add=True)
 
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(
+        "Durum", max_length=20, choices=Status.choices, default=Status.PENDING
+    )
     review_notes = models.TextField("Değerlendirme Notu", blank=True)
 
     history = HistoricalRecords()
@@ -66,12 +68,18 @@ class SensitiveFieldAccessLog(models.Model):
     görüntülendiğinin kaydı — KVKK erişim izlenebilirliği için."""
 
     application = models.ForeignKey(
-        VolunteerApplication, on_delete=models.CASCADE, related_name="access_logs"
+        VolunteerApplication,
+        on_delete=models.CASCADE,
+        related_name="access_logs",
+        verbose_name="Başvuru",
     )
     accessed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Görüntüleyen",
     )
-    accessed_at = models.DateTimeField(auto_now_add=True)
+    accessed_at = models.DateTimeField("Görüntülenme Tarihi", auto_now_add=True)
 
     class Meta:
         verbose_name = "Hassas Veri Erişim Kaydı"

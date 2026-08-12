@@ -5,7 +5,24 @@
 <form method="post" novalidate>
   {% csrf_token %}
   {% for field in form %}
-    {% if field.field.widget.input_type == "checkbox" %}
+    {% if field.name == "kvkk_consent" %}
+      <div class="consent-field">
+        {{ field }}
+        <label for="{{ field.id_for_label }}">
+          <a href="{% url 'kvkk_notice' %}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni
+          okudum, kişisel verilerimin işlenmesini kabul ediyorum.
+        </label>
+      </div>
+    {% elif field.name == "health_data_consent" %}
+      <div class="consent-field">
+        {{ field }}
+        <label for="{{ field.id_for_label }}">
+          Sağlık durumuma ilişkin özel nitelikli verimin bu başvuru kapsamında işlenmesine ilişkin
+          <a href="{% url 'explicit_consent_notice' %}" target="_blank" rel="noopener">Açık Rıza Metni</a>'ni
+          okudum, açıkça rıza gösteriyorum.
+        </label>
+      </div>
+    {% elif field.field.widget.input_type == "checkbox" %}
       <div class="consent-field">
         {{ field }}
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>

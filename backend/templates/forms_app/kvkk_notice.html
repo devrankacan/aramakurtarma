@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}KVKK Aydınlatma Metni{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'volunteer_apply' %}">&larr; Başvuru formuna dön</a>
+<section class="panel">
+  <h2>KVKK Aydınlatma Metni</h2>
+  <p class="muted">Gönüllü Başvuru Formu Kapsamında Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni</p>
+
+  <h3>1. Veri Sorumlusu</h3>
+  <p>
+    6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, bu form aracılığıyla
+    paylaştığınız kişisel verileriniz, veri sorumlusu sıfatıyla
+    <strong>[İyilik Derneği — tam unvan ve adres buraya eklenecek]</strong> tarafından aşağıda
+    açıklanan kapsamda işlenmektedir.
+  </p>
+
+  <h3>2. İşlenen Kişisel Veriler</h3>
+  <p>Gönüllü başvuru formu aracılığıyla aşağıdaki kişisel verileriniz işlenmektedir:</p>
+  <ul>
+    <li>Kimlik bilgileri: ad, soyad, doğum tarihi</li>
+    <li>İletişim bilgileri: e-posta, telefon numarası, şehir</li>
+    <li>Başvuru bilgileri: ilgilendiğiniz alan, gönüllü olma motivasyonunuz</li>
+    <li>
+      Özel nitelikli veri: sağlık durumu / fiziksel uygunluk beyanınız (bu veri ayrıca, aşağıda
+      bağlantısı verilen <a href="{% url 'explicit_consent_notice' %}" target="_blank" rel="noopener">Açık Rıza Metni</a>
+      kapsamında açık rızanıza tabidir ve teknik olarak şifrelenmiş şekilde saklanır)
+    </li>
+  </ul>
+
+  <h3>3. Kişisel Verilerin İşlenme Amacı</h3>
+  <p>
+    Toplanan kişisel verileriniz; gönüllü başvurunuzun değerlendirilmesi, uygunluk durumunuzun
+    tespiti, ekip yerleştirme süreçlerinin yürütülmesi ve tarafınızla iletişime geçilmesi
+    amaçlarıyla sınırlı olarak işlenir.
+  </p>
+
+  <h3>4. Kişisel Verilerin Aktarılması</h3>
+  <p>
+    Kişisel verileriniz, yasal zorunluluklar dışında üçüncü kişilerle paylaşılmaz; yalnızca
+    başvurunuzu değerlendirmekle yetkili dernek personeli tarafından, erişim kaydı tutularak
+    görüntülenir.
+  </p>
+
+  <h3>5. Toplama Yöntemi ve Hukuki Sebep</h3>
+  <p>
+    Verileriniz, bu formu doldurmanız yoluyla elektronik ortamda toplanır. İşleme, KVKK m.5/2
+    kapsamında bir sözleşmenin kurulması/ifası ve meşru menfaat hukuki sebeplerine; sağlık verisi
+    özelinde ise KVKK m.6 uyarınca açık rızanıza dayanır.
+  </p>
+
+  <h3>6. Haklarınız</h3>
+  <p>KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse
+    buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını
+    öğrenme, yurt içinde/yurt dışında aktarıldığı üçüncü kişileri bilme, eksik/yanlış işlenmişse
+    düzeltilmesini isteme, KVKK'da öngörülen şartlarda silinmesini/yok edilmesini isteme ve
+    bu işlemlerin aktarıldığı kişilere bildirilmesini isteme haklarına sahipsiniz.</p>
+
+  <h3>7. Başvuru Yöntemi</h3>
+  <p>
+    Haklarınızı kullanmak için taleplerinizi
+    <strong>[iletişim e-postası buraya eklenecek]</strong> adresine iletebilirsiniz.
+  </p>
+
+  <p class="muted" style="margin-top:2rem;">Bu metin, KVKK Madde 10 kapsamında standart bir
+    aydınlatma metni taslağıdır; yayına alınmadan önce derneğin yetkilisi/hukuk danışmanı
+    tarafından gözden geçirilip köşeli parantez içindeki alanların doldurulması önerilir.</p>
+</section>
+{% endblock %}

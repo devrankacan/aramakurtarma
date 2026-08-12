@@ -13,7 +13,7 @@ class KnowledgeBaseDocument(models.Model):
         validators=[FileExtensionValidator(["pdf"])],
     )
     is_published = models.BooleanField("Yayınla", default=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField("Yüklenme Tarihi", auto_now_add=True)
 
     class Meta:
         verbose_name = "Bilgi Bankası Dokümanı"

@@ -9,8 +9,8 @@ from apps.teams.models import Team
 class EquipmentCategory(models.Model):
     """Envanter kalemi kategorisi (ör. İp, Sedye, İlk Yardım Çantası)."""
 
-    name = models.CharField(max_length=150)
-    unit = models.CharField(max_length=30, default="adet")
+    name = models.CharField("Kategori Adı", max_length=150)
+    unit = models.CharField("Birim", max_length=30, default="adet")
 
     class Meta:
         verbose_name = "Ekipman Kategorisi"
@@ -24,12 +24,18 @@ class AccreditationRequirement(models.Model):
     """Bir akreditasyon seviyesinin zorunlu kıldığı ekipman/kategori ve asgari miktarı."""
 
     level = models.ForeignKey(
-        AccreditationLevel, on_delete=models.CASCADE, related_name="requirements"
+        AccreditationLevel,
+        on_delete=models.CASCADE,
+        related_name="requirements",
+        verbose_name="Akreditasyon Seviyesi",
     )
     category = models.ForeignKey(
-        EquipmentCategory, on_delete=models.PROTECT, related_name="requirements"
+        EquipmentCategory,
+        on_delete=models.PROTECT,
+        related_name="requirements",
+        verbose_name="Ekipman Kategorisi",
     )
-    min_quantity = models.PositiveIntegerField(default=1)
+    min_quantity = models.PositiveIntegerField("Asgari Miktar", default=1)
 
     class Meta:
         verbose_name = "Akreditasyon Envanter Gereksinimi"
@@ -50,15 +56,23 @@ class InventoryItem(models.Model):
         LOST = "lost", "Kayıp"
 
     category = models.ForeignKey(
-        EquipmentCategory, on_delete=models.PROTECT, related_name="items"
+        EquipmentCategory, on_delete=models.PROTECT, related_name="items", verbose_name="Kategori"
     )
     owner_team = models.ForeignKey(
-        Team, on_delete=models.SET_NULL, null=True, blank=True, related_name="inventory_items"
+        Team,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inventory_items",
+        verbose_name="Sahip Ekip",
     )
-    serial_number = models.CharField(max_length=100, blank=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    serial_number = models.CharField("Seri Numarası", max_length=100, blank=True)
+    status = models.CharField("Durum", max_length=20, choices=Status.choices, default=Status.ACTIVE)
     expires_at = models.DateField(
-        null=True, blank=True, help_text="Son kullanma tarihi olan malzemeler için (ip, medikal vb.)."
+        "Son Kullanma Tarihi",
+        null=True,
+        blank=True,
+        help_text="Son kullanma tarihi olan malzemeler için (ip, medikal vb.).",
     )
 
     class Meta:
@@ -72,20 +86,31 @@ class InventoryItem(models.Model):
 class CustodyAssignment(models.Model):
     """Zimmet: bir envanter kaleminin kullanıcıya veya ekibe teslim/iade kaydı."""
 
-    item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, related_name="custody_history")
+    item = models.ForeignKey(
+        InventoryItem,
+        on_delete=models.CASCADE,
+        related_name="custody_history",
+        verbose_name="Envanter Kalemi",
+    )
     assigned_to_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="custody_assignments",
+        verbose_name="Zimmetli Kullanıcı",
     )
     assigned_to_team = models.ForeignKey(
-        Team, on_delete=models.SET_NULL, null=True, blank=True, related_name="custody_assignments"
+        Team,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="custody_assignments",
+        verbose_name="Zimmetli Ekip",
     )
-    assigned_at = models.DateTimeField()
-    returned_at = models.DateTimeField(null=True, blank=True)
-    condition_notes = models.TextField(blank=True)
+    assigned_at = models.DateTimeField("Teslim Tarihi")
+    returned_at = models.DateTimeField("İade Tarihi", null=True, blank=True)
+    condition_notes = models.TextField("Durum Notları", blank=True)
 
     history = HistoricalRecords()
 

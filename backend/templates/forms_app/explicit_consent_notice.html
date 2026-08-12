@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Açık Rıza Metni{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'volunteer_apply' %}">&larr; Başvuru formuna dön</a>
+<section class="panel">
+  <h2>Açık Rıza Metni</h2>
+  <p class="muted">Sağlık Durumu / Fiziksel Uygunluk Beyanının İşlenmesine İlişkin Açık Rıza Metni</p>
+
+  <p>
+    6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 6. maddesi uyarınca sağlık verileri "özel
+    nitelikli kişisel veri" kategorisinde yer alır ve ancak açık rızanız ile işlenebilir. Bu metin,
+    gönüllü başvuru formunda paylaştığınız sağlık durumu / fiziksel uygunluk beyanınızın
+    işlenmesine ilişkin açık rızanızı almak amacıyla hazırlanmıştır. Genel kişisel veri işleme
+    hakkında bilgi için ayrıca
+    <a href="{% url 'kvkk_notice' %}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni
+    incelemenizi rica ederiz.
+  </p>
+
+  <h3>İşlenme Amacı</h3>
+  <p>
+    Sağlık durumu / fiziksel uygunluk beyanınız, yalnızca arama kurtarma sahasındaki fiziksel
+    görevlere uygunluğunuzun değerlendirilmesi ve saha operasyonlarında sizin ve ekibin
+    güvenliğinin sağlanması amacıyla işlenir. Bu veri, gönüllü kabul sürecinizin dışında başka bir
+    amaçla kullanılmaz.
+  </p>
+
+  <h3>Saklama ve Güvenlik</h3>
+  <p>
+    Bu veri, sistemde uygulama düzeyinde şifrelenmiş olarak saklanır ve yalnızca yetkilendirilmiş
+    superuser rolündeki personel tarafından, her erişim ayrıca kayıt altına alınarak
+    görüntülenebilir.
+  </p>
+
+  <h3>Rızanın Geri Alınması</h3>
+  <p>
+    Bu rızayı istediğiniz zaman geri çekebilirsiniz. Rızanızı geri çekmeniz, önceden bu rızaya
+    dayanılarak yapılan işlemlerin hukuka uygunluğunu etkilemez, ancak rızanızı geri çektiğiniz
+    andan itibaren sağlık verinizin işlenmesine son verilir.
+  </p>
+
+  <h3>Başvuru Yöntemi</h3>
+  <p>
+    Rızanızı geri çekmek veya bu konuda soru sormak için
+    <strong>[iletişim e-postası buraya eklenecek]</strong> adresine ulaşabilirsiniz.
+  </p>
+
+  <p>
+    Başvuru formundaki ilgili onay kutusunu işaretleyerek, bu metni okuduğunuzu ve sağlık
+    durumu/fiziksel uygunluk beyanınızın yukarıda açıklanan kapsamda işlenmesine açıkça rıza
+    gösterdiğinizi beyan etmiş olursunuz.
+  </p>
+
+  <p class="muted" style="margin-top:2rem;">Bu metin standart bir açık rıza metni taslağıdır;
+    yayına alınmadan önce derneğin yetkilisi/hukuk danışmanı tarafından gözden geçirilip köşeli
+    parantez içindeki alanların doldurulması önerilir.</p>
+</section>
+{% endblock %}

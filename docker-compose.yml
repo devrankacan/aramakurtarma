@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - "80:80"
+      - "${HTTP_PORT}:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/templates
       - static_data:/app/staticfiles:ro

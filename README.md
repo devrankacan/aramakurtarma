@@ -32,7 +32,7 @@ cp .env.example .env   # değerleri kendi ortamına göre düzenle
 docker compose up --build
 ```
 
-Backend: http://localhost/ (nginx üzerinden), admin paneli: http://localhost/admin/
+Backend: http://localhost:$HTTP_PORT/ (nginx üzerinden, `.env`'deki `HTTP_PORT` neyse), admin paneli: http://localhost:$HTTP_PORT/admin/
 
 İlk kurulumda:
 
@@ -53,6 +53,19 @@ Yeni sunucuya taşırken: repoyu çek, `.env` dosyasını yeni ortama göre dold
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
+
+## Paylaşımlı VPS'e kurulum (diğer projeleri etkilememesi için)
+
+Bu proje sunucudaki başka projelerle aynı VPS'i paylaşacaksa:
+
+1. **Boş port bul.** Kuruma başlamadan önce sunucuda hangi portların dolu olduğunu kontrol et:
+   ```bash
+   sudo ss -tulpn | grep LISTEN
+   ```
+   Listede görünmeyen bir portu `.env` içindeki `HTTP_PORT` değerine yaz. `db` ve `redis` servisleri zaten host'a hiç port açmıyor (`docker-compose.yml`'de `ports:` tanımlı değil) — sadece proje içi Docker ağında konuşuyorlar, bu yüzden onlarla port çakışması hiç yaşanmaz.
+2. **`COMPOSE_PROJECT_NAME`'i benzersiz tut.** `.env` içindeki bu değer container/network/volume adlarının önekidir; farklı projelerin aynı isimde container'ı olsa bile karışmaz, `docker compose down` yalnızca bu projenin kaynaklarını etkiler.
+3. **Sunucu genelinde etkili komutlardan kaçın.** `docker system prune`, `docker compose down -v` (başka projenin volume'ünü de silebilecek yanlış dizinde çalıştırılırsa), veya diğer projelerin container'larını `docker stop/rm` ile durdurmak gibi işlemler bu projeye özgü olmayan komutlardır — her zaman bu repo dizininde ve sadece bu projeye ait komutları çalıştır.
+4. **İleride subdomain'e bağlarken** sunucuda zaten çalışan bir reverse proxy (nginx/Traefik) varsa, bu projenin nginx'ini host'ta ayrı bir portta (`HTTP_PORT`) tutup, üst seviye reverse proxy'den o porta yönlendirme (`proxy_pass http://127.0.0.1:$HTTP_PORT`) yapman yeterli — bu projenin container'larına dokunman gerekmez.
 
 ## Notlar
 

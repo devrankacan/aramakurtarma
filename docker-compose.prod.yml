@@ -1,0 +1,22 @@
+# Kullanım: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# .env içinde DJANGO_ENV=prod ve gerçek SECRET_KEY/ALLOWED_HOSTS/SERVER_NAME ayarlanmalı.
+services:
+  backend:
+    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    restart: always
+
+  db:
+    restart: always
+
+  redis:
+    restart: always
+
+  nginx:
+    restart: always
+
+volumes:
+  static_data:
+  media_data:

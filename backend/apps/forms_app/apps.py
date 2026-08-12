@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class FormsAppConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.forms_app"
+    label = "forms_app"
+    verbose_name = "Dijital Formlar"

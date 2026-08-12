@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: aramakurtarma\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: tr\n"
+
+# Django admin'in "Filter" (sağ üstteki süzme/filtreleme kutusu) çevirisini
+# proje genelinde "Süz" yerine "Filtrele" olarak değiştirir.
+msgid "Filter"
+msgstr "Filtrele"
+
+#, python-format
+msgid " By %(filter_title)s "
+msgstr " %(filter_title)s filtresine göre "

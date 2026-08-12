@@ -117,6 +117,11 @@ TIME_ZONE = "Europe/Istanbul"
 USE_I18N = True
 USE_TZ = True
 
+# Django'nun kendi admin çevirilerinden bazılarını (ör. "Süz" -> "Filtrele")
+# projeye özel terimlerle ezmek için. Proje LOCALE_PATHS, Django'nun kendi
+# app-level çevirilerinden önce taranır.
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]

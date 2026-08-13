@@ -8,12 +8,16 @@
   }
   @media (max-width: 900px) { .announcement-list { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) { .announcement-list { grid-template-columns: 1fr; } }
-  .announcement-list section.panel { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .announcement-list a.panel {
+    padding: 0; overflow: hidden; display: flex; flex-direction: column;
+    text-decoration: none; color: inherit; transition: box-shadow .15s, transform .15s;
+  }
+  .announcement-list a.panel:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-2px); }
   .announcement-list .announcement-image { width: 100%; height: 160px; object-fit: cover; display: block; }
   .announcement-list .announcement-body { padding: 1.25rem 1.5rem; }
-  .announcement-list section.panel h3 { margin: 0 0 0.25rem; font-size: 1.05rem; }
-  .announcement-list section.panel p.muted { margin: 0 0 0.9rem; font-size: 0.82rem; }
-  .announcement-list section.panel p:last-child { margin-bottom: 0; }
+  .announcement-list a.panel h3 { margin: 0 0 0.25rem; font-size: 1.05rem; color: var(--brand-dark); }
+  .announcement-list a.panel p.muted { margin: 0 0 0.9rem; font-size: 0.82rem; }
+  .announcement-list a.panel p:last-child { margin-bottom: 0; }
 </style>
 {% endblock %}
 {% block content %}
@@ -22,16 +26,16 @@
 {% if announcements %}
 <div class="announcement-list">
   {% for announcement in announcements %}
-    <section class="panel">
+    <a class="panel" href="{% url 'announcement_detail' announcement.pk %}">
       {% if announcement.image %}
       <img class="announcement-image" src="{{ announcement.image.url }}" alt="{{ announcement.title }}">
       {% endif %}
       <div class="announcement-body">
         <h3>{{ announcement.title }}</h3>
         <p class="muted">{{ announcement.published_at|date:"d.m.Y H:i" }}</p>
-        <p>{{ announcement.body|linebreaksbr }}</p>
+        <p>{{ announcement.body|truncatewords:25 }}</p>
       </div>
-    </section>
+    </a>
   {% endfor %}
 </div>
 {% else %}

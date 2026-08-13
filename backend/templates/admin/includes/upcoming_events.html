@@ -1,5 +1,8 @@
-<div class="module" id="upcoming-events-module">
-    <h2>Yaklaşan Faaliyetler</h2>
+<div class="module dash-module" id="upcoming-events-module">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+        Yaklaşan Faaliyetler
+    </h2>
     {% if events %}
     <ul class="actionlist">
         {% for event in events %}
@@ -13,6 +16,6 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p>Yaklaşan faaliyet yok.</p>
+    <p class="dash-empty">Yaklaşan faaliyet yok.</p>
     {% endif %}
 </div>

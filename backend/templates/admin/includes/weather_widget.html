@@ -1,5 +1,8 @@
-<div class="module" id="weather-widget-module">
-    <h2>Hava Durumu</h2>
+<div class="module dash-module" id="weather-widget-module">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18H6a4 4 0 1 1 .9-7.9A5 5 0 0 1 17 9a3.5 3.5 0 0 1 0 9z"/></svg>
+        Hava Durumu
+    </h2>
     {% if items %}
     <ul class="actionlist">
         {% for item in items %}
@@ -13,7 +16,7 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p>Gösterilecek il eklenmedi ya da veriye ulaşılamıyor.
+    <p class="dash-empty">Gösterilecek il eklenmedi ya da veriye ulaşılamıyor.
         <a href="{% url 'admin:content_weatherlocation_add' %}">İl ekle</a></p>
     {% endif %}
 </div>

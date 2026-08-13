@@ -1,5 +1,8 @@
-<div class="module" id="upcoming-birthdays-module">
-    <h2>Yaklaşan Doğum Günleri</h2>
+<div class="module dash-module" id="upcoming-birthdays-module">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13"/><path d="M12 8c-1.5 0-3-1-3-2.5S10 3 12 5c0-2 1.5-3.5 3-2.5S13.5 8 12 8z"/></svg>
+        Yaklaşan Doğum Günleri
+    </h2>
     {% if items %}
     <ul class="actionlist">
         {% for item in items %}
@@ -11,6 +14,6 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p>Yaklaşan doğum günü yok.</p>
+    <p class="dash-empty">Yaklaşan doğum günü yok.</p>
     {% endif %}
 </div>

@@ -1,5 +1,8 @@
-<div class="module" id="upcoming-anniversaries-module">
-    <h2>Yaklaşan Yıl Dönümleri</h2>
+<div class="module dash-module" id="upcoming-anniversaries-module">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>
+        Yaklaşan Yıl Dönümleri
+    </h2>
     {% if items %}
     <ul class="actionlist">
         {% for item in items %}
@@ -11,6 +14,6 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p>Yaklaşan yıl dönümü yok.</p>
+    <p class="dash-empty">Yaklaşan yıl dönümü yok.</p>
     {% endif %}
 </div>

@@ -1,7 +1,57 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+<style>
+  #content-related .dash-module {
+    background: #fff;
+    border: 1px solid #e2e6ea;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  #content-related .dash-module h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    background: none;
+    color: #123a61;
+    padding: 0;
+    margin: 0;
+  }
+  #content-related .dash-module h2 svg {
+    width: 18px;
+    height: 18px;
+    color: #1aa6b7;
+    flex-shrink: 0;
+  }
+  #content-related .dash-module .actionlist {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  #content-related .dash-module .actionlist li {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #f0f2f4;
+    font-size: 0.88rem;
+  }
+  #content-related .dash-module .actionlist li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  #content-related .dash-module .actionlist .mini.quiet {
+    color: #8a94a0;
+  }
+  #content-related .dash-module .dash-empty {
+    color: #9aa4ad;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin: 0.6rem 0 0;
+  }
+</style>
+{% endblock %}
 
 {% block coltype %}colMS{% endblock %}
 

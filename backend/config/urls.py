@@ -3,6 +3,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from apps.calendar_app.views import calendar_widget_partial
+
 from .views import HomeView
 
 admin.site.site_header = "İyilik Derneği Arama Kurtarma"
@@ -11,6 +13,9 @@ admin.site.index_title = "Yönetim Paneli"
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    # admin.site.urls'ten ÖNCE tanımlanmalı, aksi halde /admin/* isteklerini
+    # admin'in kendi urlconf'u yutar ve buraya hiç düşmez.
+    path("admin/calendar-widget/", calendar_widget_partial, name="admin_calendar_widget"),
     path("admin/", admin.site.urls),
     path("", include("apps.forms_app.urls")),
     path("", include("apps.content.urls")),

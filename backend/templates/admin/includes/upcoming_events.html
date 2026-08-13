@@ -1,12 +1,12 @@
-<div class="module dash-module dash-calendar" id="upcoming-events-module">
+<div class="module dash-module dash-calendar" id="upcoming-events-module" data-partial-url="{% url 'admin_calendar_widget' %}">
     <h2>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
         Faaliyet Takvimi
     </h2>
     <div class="dash-calendar-nav">
-        <a href="?month={{ prev_month_param }}" class="dash-calendar-nav-btn" title="Önceki ay">&lsaquo;</a>
+        <a href="?month={{ prev_month_param }}" data-month="{{ prev_month_param }}" class="dash-calendar-nav-btn js-calendar-nav" title="Önceki ay">&lsaquo;</a>
         <span class="dash-calendar-month">{{ month_label }}</span>
-        <a href="?month={{ next_month_param }}" class="dash-calendar-nav-btn" title="Sonraki ay">&rsaquo;</a>
+        <a href="?month={{ next_month_param }}" data-month="{{ next_month_param }}" class="dash-calendar-nav-btn js-calendar-nav" title="Sonraki ay">&rsaquo;</a>
     </div>
     <div class="dash-calendar-grid">
         {% for weekday in weekdays %}

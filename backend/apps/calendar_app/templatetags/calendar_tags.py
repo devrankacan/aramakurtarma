@@ -54,15 +54,12 @@ def _first_of_prev_month(d):
     return (d.replace(day=1) - timedelta(days=1)).replace(day=1)
 
 
-@register.inclusion_tag("admin/includes/upcoming_events.html", takes_context=True)
-def upcoming_events(context):
-    """Admin ana sayfasında 'Son eylemler' yerine gösterilen aylık mini takvim.
-    Görüntülenen ay `?month=YYYY-MM` GET parametresiyle değiştirilebilir (ileri/geri
-    okları bunu kullanır); parametre yoksa/hatalıysa bugünün ayı gösterilir. Bir
-    günün faaliyet(ler)i o günün hücresinde küçük bir kart olarak görünür.
-    Superuser tüm faaliyetleri görür; diğer kullanıcılar sadece kendi aktif üyesi
-    oldukları ekiplere atanmış faaliyetleri görür."""
-    request = context.get("request")
+def build_calendar_context(request):
+    """upcoming_events template tag'i ile calendar_widget_partial view'ının
+    ortak kullandığı hesaplama. Görüntülenen ay `?month=YYYY-MM` GET
+    parametresiyle değiştirilebilir; parametre yoksa/hatalıysa bugünün ayı
+    gösterilir. Superuser tüm faaliyetleri görür; diğer kullanıcılar sadece
+    kendi aktif üyesi oldukları ekiplere atanmış faaliyetleri görür."""
     user = getattr(request, "user", None)
     today = timezone.localdate()
 
@@ -114,6 +111,13 @@ def upcoming_events(context):
         "prev_month_param": _first_of_prev_month(month_start).strftime("%Y-%m"),
         "next_month_param": next_month_start.strftime("%Y-%m"),
     }
+
+
+@register.inclusion_tag("admin/includes/upcoming_events.html", takes_context=True)
+def upcoming_events(context):
+    """Admin ana sayfasında 'Son eylemler' yerine gösterilen aylık mini takvim.
+    Bir günün faaliyet(ler)i o günün hücresinde küçük bir kart olarak görünür."""
+    return build_calendar_context(context.get("request"))
 
 
 @register.inclusion_tag("admin/includes/upcoming_birthdays.html", takes_context=True)

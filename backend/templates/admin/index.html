@@ -196,4 +196,43 @@
     {% weather_widget %}
     {% upcoming_birthdays %}
 </div>
+<script>
+  // Faaliyet Takvimi'nde ay değiştirme: sayfa yenilenmeden (AJAX) takvim
+  // modülünü günceller. Fetch başarısız olursa normal href navigasyonuna düşer.
+  (function () {
+    function bindCalendarNav(scope) {
+      var module = scope.querySelector('#upcoming-events-module');
+      if (!module) return;
+      var links = module.querySelectorAll('.js-calendar-nav');
+      links.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          var month = link.getAttribute('data-month');
+          var baseUrl = module.getAttribute('data-partial-url');
+          fetch(baseUrl + '?month=' + encodeURIComponent(month), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          })
+            .then(function (response) {
+              if (!response.ok) throw new Error('network-error');
+              return response.text();
+            })
+            .then(function (html) {
+              var wrapper = document.createElement('div');
+              wrapper.innerHTML = html.trim();
+              var newModule = wrapper.querySelector('#upcoming-events-module');
+              if (!newModule) throw new Error('parse-error');
+              module.replaceWith(newModule);
+              bindCalendarNav(document);
+            })
+            .catch(function () {
+              window.location.href = link.href;
+            });
+        });
+      });
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      bindCalendarNav(document);
+    });
+  })();
+</script>
 {% endblock %}

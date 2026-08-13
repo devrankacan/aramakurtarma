@@ -1,41 +1,53 @@
 {% extends "base.html" %}
+{% block extra_head %}
+<style>
+  .volunteer-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
+  .volunteer-form-grid .full-width { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .volunteer-form-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 {% block content %}
 <a class="back" href="{% url 'home' %}">&larr; Ana sayfa</a>
 <h2>Gönüllü Başvuru Formu</h2>
 <form method="post" novalidate>
   {% csrf_token %}
+  <div class="volunteer-form-grid">
   {% for field in form %}
     {% if field.name == "kvkk_consent" %}
-      <div class="consent-field">
+      <div class="consent-field full-width">
         {{ field }}
         <label for="{{ field.id_for_label }}">
           <a href="{% url 'kvkk_notice' %}" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>'ni
           okudum, kişisel verilerimin işlenmesini kabul ediyorum.
         </label>
+        {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
       </div>
     {% elif field.name == "health_data_consent" %}
-      <div class="consent-field">
+      <div class="consent-field full-width">
         {{ field }}
         <label for="{{ field.id_for_label }}">
           Sağlık durumuma ilişkin özel nitelikli verimin bu başvuru kapsamında işlenmesine ilişkin
           <a href="{% url 'explicit_consent_notice' %}" target="_blank" rel="noopener">Açık Rıza Metni</a>'ni
           okudum, açıkça rıza gösteriyorum.
         </label>
+        {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
       </div>
     {% elif field.field.widget.input_type == "checkbox" %}
-      <div class="consent-field">
+      <div class="consent-field full-width">
         {{ field }}
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
       </div>
     {% else %}
-      <p>
+      <p{% if field.name == "motivation" or field.name == "health_declaration" %} class="full-width"{% endif %}>
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
         {% if field.help_text %}<small class="help-text">{{ field.help_text }}</small>{% endif %}
+        {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
       </p>
     {% endif %}
-    {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
   {% endfor %}
+  </div>
   <button type="submit">Başvuruyu Gönder</button>
 </form>
 {% endblock %}

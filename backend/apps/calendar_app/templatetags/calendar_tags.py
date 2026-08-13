@@ -1,5 +1,5 @@
 import calendar as cal_module
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model
 from django import template
@@ -14,7 +14,16 @@ TURKISH_MONTHS = [
     "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
 ]
-TURKISH_WEEKDAY_LABELS = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"]
+# Pazartesi başlangıçlı; son iki gün (Ct, Pz) hafta sonu.
+TURKISH_WEEKDAYS = [
+    {"label": "Pt", "is_weekend": False},
+    {"label": "Sa", "is_weekend": False},
+    {"label": "Ça", "is_weekend": False},
+    {"label": "Pe", "is_weekend": False},
+    {"label": "Cu", "is_weekend": False},
+    {"label": "Ct", "is_weekend": True},
+    {"label": "Pz", "is_weekend": True},
+]
 
 
 def _next_occurrence(base_date, today):
@@ -37,23 +46,40 @@ def _visible_team_ids(user):
     return user.team_memberships.filter(left_at__isnull=True).values_list("team_id", flat=True)
 
 
+def _first_of_next_month(d):
+    return (d.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+
+def _first_of_prev_month(d):
+    return (d.replace(day=1) - timedelta(days=1)).replace(day=1)
+
+
 @register.inclusion_tag("admin/includes/upcoming_events.html", takes_context=True)
 def upcoming_events(context):
     """Admin ana sayfasında 'Son eylemler' yerine gösterilen aylık mini takvim.
-    Bu ayın günleri ızgara halinde gösterilir, faaliyeti olan günlerde başlık/saat
-    küçük bir kart olarak günün hücresinde görünür. Superuser tüm faaliyetleri
-    görür; diğer kullanıcılar sadece kendi aktif üyesi oldukları ekiplere
-    atanmış faaliyetleri görür."""
+    Görüntülenen ay `?month=YYYY-MM` GET parametresiyle değiştirilebilir (ileri/geri
+    okları bunu kullanır); parametre yoksa/hatalıysa bugünün ayı gösterilir. Bir
+    günün faaliyet(ler)i o günün hücresinde küçük bir kart olarak görünür.
+    Superuser tüm faaliyetleri görür; diğer kullanıcılar sadece kendi aktif üyesi
+    oldukları ekiplere atanmış faaliyetleri görür."""
     request = context.get("request")
     user = getattr(request, "user", None)
     today = timezone.localdate()
+
+    month_param = request.GET.get("month") if request else None
+    month_start = today.replace(day=1)
+    if month_param:
+        try:
+            year_str, month_str = month_param.split("-")
+            month_start = date(int(year_str), int(month_str), 1)
+        except (ValueError, TypeError):
+            month_start = today.replace(day=1)
 
     qs = Event.objects.all()
     if user is not None and user.is_authenticated and not user.is_superuser:
         qs = qs.filter(teams__id__in=_visible_team_ids(user))
 
-    month_start = today.replace(day=1)
-    next_month_start = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+    next_month_start = _first_of_next_month(month_start)
     month_events = qs.filter(
         start_at__date__gte=month_start, start_at__date__lt=next_month_start
     ).order_by("start_at").distinct()
@@ -64,17 +90,18 @@ def upcoming_events(context):
 
     cal_module.setfirstweekday(cal_module.MONDAY)
     weeks = []
-    for week in cal_module.monthcalendar(today.year, today.month):
+    for week in cal_module.monthcalendar(month_start.year, month_start.month):
         week_days = []
-        for day_num in week:
+        for weekday_index, day_num in enumerate(week):
             if day_num == 0:
                 week_days.append(None)
             else:
-                day_date = today.replace(day=day_num)
+                day_date = month_start.replace(day=day_num)
                 week_days.append(
                     {
                         "day": day_num,
                         "is_today": day_date == today,
+                        "is_weekend": weekday_index >= 5,
                         "events": events_by_day.get(day_date, []),
                     }
                 )
@@ -82,8 +109,10 @@ def upcoming_events(context):
 
     return {
         "weeks": weeks,
-        "weekday_labels": TURKISH_WEEKDAY_LABELS,
-        "month_label": f"{TURKISH_MONTHS[today.month - 1]} {today.year}",
+        "weekdays": TURKISH_WEEKDAYS,
+        "month_label": f"{TURKISH_MONTHS[month_start.month - 1]} {month_start.year}",
+        "prev_month_param": _first_of_prev_month(month_start).strftime("%Y-%m"),
+        "next_month_param": next_month_start.strftime("%Y-%m"),
     }
 
 

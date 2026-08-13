@@ -3,15 +3,19 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
         Faaliyet Takvimi
     </h2>
-    <p class="dash-calendar-month">{{ month_label }}</p>
+    <div class="dash-calendar-nav">
+        <a href="?month={{ prev_month_param }}" class="dash-calendar-nav-btn" title="Önceki ay">&lsaquo;</a>
+        <span class="dash-calendar-month">{{ month_label }}</span>
+        <a href="?month={{ next_month_param }}" class="dash-calendar-nav-btn" title="Sonraki ay">&rsaquo;</a>
+    </div>
     <div class="dash-calendar-grid">
-        {% for label in weekday_labels %}
-        <div class="dash-calendar-weekday">{{ label }}</div>
+        {% for weekday in weekdays %}
+        <div class="dash-calendar-weekday{% if weekday.is_weekend %} is-weekend{% endif %}">{{ weekday.label }}</div>
         {% endfor %}
         {% for week in weeks %}
             {% for day in week %}
                 {% if day %}
-                <div class="dash-calendar-day{% if day.is_today %} is-today{% endif %}{% if day.events %} has-events{% endif %}">
+                <div class="dash-calendar-day{% if day.is_today %} is-today{% endif %}{% if day.events %} has-events{% endif %}{% if day.is_weekend %} is-weekend{% endif %}">
                     <span class="dash-calendar-daynum">{{ day.day }}</span>
                     {% for event in day.events|slice:":2" %}
                     <a class="dash-calendar-card" href="{% url 'admin:calendar_app_event_change' event.pk %}" title="{{ event.title }} — {{ event.start_at|date:'H:i' }}{% if event.location %} · {{ event.location }}{% endif %}">

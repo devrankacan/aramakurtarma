@@ -60,14 +60,28 @@ GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 WEATHER_CACHE_TTL_SECONDS = 1800
 
-WEATHER_CODE_LABELS = {
-    0: "Açık", 1: "Az bulutlu", 2: "Parçalı bulutlu", 3: "Kapalı",
-    45: "Sisli", 48: "Kırağı sisi",
-    51: "Hafif çise", 53: "Çise", 55: "Yoğun çise",
-    61: "Hafif yağmur", 63: "Yağmur", 65: "Kuvvetli yağmur",
-    71: "Hafif kar", 73: "Kar", 75: "Kuvvetli kar",
-    80: "Sağanak", 81: "Kuvvetli sağanak", 82: "Şiddetli sağanak",
-    95: "Gök gürültülü fırtına",
+# WMO hava kodu -> (etiket, ikon anahtarı). İkon anahtarları
+# templates/admin/includes/weather_widget.html içindeki SVG'lerle eşleşir.
+WEATHER_CODES = {
+    0: ("Açık", "sun"),
+    1: ("Az bulutlu", "cloud-sun"),
+    2: ("Parçalı bulutlu", "cloud-sun"),
+    3: ("Kapalı", "cloud"),
+    45: ("Sisli", "fog"),
+    48: ("Kırağı sisi", "fog"),
+    51: ("Hafif çise", "rain"),
+    53: ("Çise", "rain"),
+    55: ("Yoğun çise", "rain"),
+    61: ("Hafif yağmur", "rain"),
+    63: ("Yağmur", "rain"),
+    65: ("Kuvvetli yağmur", "rain"),
+    71: ("Hafif kar", "snow"),
+    73: ("Kar", "snow"),
+    75: ("Kuvvetli kar", "snow"),
+    80: ("Sağanak", "rain"),
+    81: ("Kuvvetli sağanak", "rain"),
+    82: ("Şiddetli sağanak", "rain"),
+    95: ("Gök gürültülü fırtına", "storm"),
 }
 
 
@@ -109,10 +123,12 @@ def fetch_weather(city_name):
         logger.warning("Hava durumu alınamadı (%s): %s", city_name, exc)
         return None
 
+    condition, icon = WEATHER_CODES.get(current.get("weather_code"), ("—", "cloud"))
     result = {
         "city": city_name,
         "temperature": current.get("temperature_2m"),
-        "condition": WEATHER_CODE_LABELS.get(current.get("weather_code"), "—"),
+        "condition": condition,
+        "icon": icon,
     }
     cache.set(cache_key, result, WEATHER_CACHE_TTL_SECONDS)
     return result

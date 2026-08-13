@@ -9,6 +9,7 @@ class Announcement(models.Model):
 
     title = models.CharField("Başlık", max_length=200)
     body = models.TextField("İçerik")
+    image = models.ImageField("Görsel", upload_to="announcements/%Y/%m/", blank=True)
     is_published = models.BooleanField("Yayınla", default=True)
     published_at = models.DateTimeField("Yayın Tarihi", default=timezone.now)
 

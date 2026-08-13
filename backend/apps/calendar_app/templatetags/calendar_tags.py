@@ -1,3 +1,6 @@
+import calendar as cal_module
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django import template
 from django.utils import timezone
@@ -6,6 +9,12 @@ from apps.calendar_app.models import Event
 from apps.teams.models import TeamMembership
 
 register = template.Library()
+
+TURKISH_MONTHS = [
+    "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+]
+TURKISH_WEEKDAY_LABELS = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"]
 
 
 def _next_occurrence(base_date, today):
@@ -29,18 +38,53 @@ def _visible_team_ids(user):
 
 
 @register.inclusion_tag("admin/includes/upcoming_events.html", takes_context=True)
-def upcoming_events(context, count=8):
-    """Admin ana sayfasında 'Son eylemler' yerine gösterilen yaklaşan faaliyet listesi.
-    Superuser tüm faaliyetleri görür; diğer kullanıcılar sadece kendi aktif üyesi
-    oldukları ekiplere atanmış faaliyetleri görür."""
+def upcoming_events(context):
+    """Admin ana sayfasında 'Son eylemler' yerine gösterilen aylık mini takvim.
+    Bu ayın günleri ızgara halinde gösterilir, faaliyeti olan günlerde başlık/saat
+    küçük bir kart olarak günün hücresinde görünür. Superuser tüm faaliyetleri
+    görür; diğer kullanıcılar sadece kendi aktif üyesi oldukları ekiplere
+    atanmış faaliyetleri görür."""
     request = context.get("request")
     user = getattr(request, "user", None)
+    today = timezone.localdate()
 
-    qs = Event.objects.filter(start_at__gte=timezone.now()).order_by("start_at")
+    qs = Event.objects.all()
     if user is not None and user.is_authenticated and not user.is_superuser:
         qs = qs.filter(teams__id__in=_visible_team_ids(user))
 
-    return {"events": qs.distinct()[:count]}
+    month_start = today.replace(day=1)
+    next_month_start = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+    month_events = qs.filter(
+        start_at__date__gte=month_start, start_at__date__lt=next_month_start
+    ).order_by("start_at").distinct()
+
+    events_by_day = {}
+    for event in month_events:
+        events_by_day.setdefault(event.start_at.date(), []).append(event)
+
+    cal_module.setfirstweekday(cal_module.MONDAY)
+    weeks = []
+    for week in cal_module.monthcalendar(today.year, today.month):
+        week_days = []
+        for day_num in week:
+            if day_num == 0:
+                week_days.append(None)
+            else:
+                day_date = today.replace(day=day_num)
+                week_days.append(
+                    {
+                        "day": day_num,
+                        "is_today": day_date == today,
+                        "events": events_by_day.get(day_date, []),
+                    }
+                )
+        weeks.append(week_days)
+
+    return {
+        "weeks": weeks,
+        "weekday_labels": TURKISH_WEEKDAY_LABELS,
+        "month_label": f"{TURKISH_MONTHS[today.month - 1]} {today.year}",
+    }
 
 
 @register.inclusion_tag("admin/includes/upcoming_birthdays.html", takes_context=True)

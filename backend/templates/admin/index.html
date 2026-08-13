@@ -50,6 +50,77 @@
     font-style: italic;
     margin: 0.6rem 0 0;
   }
+
+  /* Faaliyet Takvimi (mini aylık takvim) */
+  #content-related .dash-calendar { padding: 1rem 0.75rem; }
+  #content-related .dash-calendar h2 { padding: 0 0.5rem; }
+  #content-related .dash-calendar-month {
+    margin: 0.5rem 0.5rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #5b6774;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  #content-related .dash-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  #content-related .dash-calendar-weekday {
+    text-align: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #9aa4ad;
+    padding-bottom: 2px;
+  }
+  #content-related .dash-calendar-day {
+    min-height: 30px;
+    border-radius: 5px;
+    padding: 2px 3px;
+    background: #f7f8f9;
+  }
+  #content-related .dash-calendar-day.is-empty { background: transparent; }
+  #content-related .dash-calendar-day.is-today .dash-calendar-daynum {
+    background: #1c4f82;
+    color: #fff;
+    border-radius: 50%;
+  }
+  #content-related .dash-calendar-day.has-events {
+    background: #eaf6f8;
+    border: 1px solid #bfe6ea;
+  }
+  #content-related .dash-calendar-daynum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: #4a5560;
+  }
+  #content-related .dash-calendar-card {
+    display: block;
+    margin-top: 2px;
+    padding: 1px 3px;
+    background: #1aa6b7;
+    color: #fff;
+    border-radius: 3px;
+    font-size: 0.56rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+  }
+  #content-related .dash-calendar-card:hover { background: #158b99; }
+  #content-related .dash-calendar-more {
+    display: block;
+    margin-top: 1px;
+    font-size: 0.55rem;
+    color: #7a8a94;
+  }
 </style>
 {% endblock %}
 

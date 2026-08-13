@@ -23,13 +23,13 @@
     <h2>Bilgi Bankası</h2>
     <p>Eğitim doküman ve prosedürlerine buradan ulaşabilirsiniz.</p>
   </a>
-  <div class="card card-disabled">
+  <a class="card" href="{% url 'announcements' %}">
     <span class="icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v3a1 1 0 0 0 1 1h2l4 4v-13l-4 4H4a1 1 0 0 0-1 1z"/><path d="M15 8a4 4 0 0 1 0 8"/><path d="M18 5a8 8 0 0 1 0 14"/></svg>
     </span>
     <h2>Duyurular</h2>
-    <p>Yakında burada.</p>
-  </div>
+    <p>Dernek ve ekiplerle ilgili güncel duyurular.</p>
+  </a>
 </div>
 
 <section class="panel quake-panel">
@@ -90,8 +90,6 @@
   .card .icon svg { width: 22px; height: 22px; }
   .card h2 { margin: 0 0 0.45rem; font-size: 1.05rem; color: var(--brand-dark); }
   .card p { margin: 0; font-size: 0.9rem; color: var(--muted); }
-  .card-disabled { opacity: 0.55; cursor: default; }
-  .card-disabled:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-color: var(--border); }
 
   .quake-panel .source-tag {
     display: inline-flex; align-items: center; vertical-align: middle; margin-left: 0.65rem;

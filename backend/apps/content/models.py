@@ -1,5 +1,24 @@
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from django.utils import timezone
+
+
+class Announcement(models.Model):
+    """Anasayfadaki 'Duyurular' bölümünde listelenen, admin panelinden
+    eklenen duyuru."""
+
+    title = models.CharField("Başlık", max_length=200)
+    body = models.TextField("İçerik")
+    is_published = models.BooleanField("Yayınla", default=True)
+    published_at = models.DateTimeField("Yayın Tarihi", default=timezone.now)
+
+    class Meta:
+        verbose_name = "Duyuru"
+        verbose_name_plural = "Duyurular"
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return self.title
 
 
 class KnowledgeBaseDocument(models.Model):

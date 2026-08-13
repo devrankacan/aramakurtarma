@@ -1,6 +1,7 @@
+from django.utils import timezone
 from django.views.generic import ListView
 
-from .models import KnowledgeBaseDocument
+from .models import Announcement, KnowledgeBaseDocument
 
 
 class KnowledgeBaseListView(ListView):
@@ -10,3 +11,14 @@ class KnowledgeBaseListView(ListView):
 
     def get_queryset(self):
         return KnowledgeBaseDocument.objects.filter(is_published=True)
+
+
+class AnnouncementListView(ListView):
+    model = Announcement
+    template_name = "content/announcements.html"
+    context_object_name = "announcements"
+
+    def get_queryset(self):
+        return Announcement.objects.filter(
+            is_published=True, published_at__lte=timezone.now()
+        )

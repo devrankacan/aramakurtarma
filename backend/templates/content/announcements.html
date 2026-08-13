@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<style>
+  .announcement-list { display: flex; flex-direction: column; gap: 1.25rem; }
+  .announcement-list section.panel h3 { margin: 0 0 0.25rem; }
+  .announcement-list section.panel p.muted { margin: 0 0 0.9rem; font-size: 0.82rem; }
+</style>
+{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'home' %}">&larr; Ana sayfa</a>
+<h2>Duyurular</h2>
+{% if announcements %}
+<div class="announcement-list">
+  {% for announcement in announcements %}
+    <section class="panel">
+      <h3>{{ announcement.title }}</h3>
+      <p class="muted">{{ announcement.published_at|date:"d.m.Y H:i" }}</p>
+      <p>{{ announcement.body|linebreaksbr }}</p>
+    </section>
+  {% endfor %}
+</div>
+{% else %}
+<p>Henüz duyuru eklenmedi.</p>
+{% endif %}
+{% endblock %}

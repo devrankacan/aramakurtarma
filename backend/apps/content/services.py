@@ -139,19 +139,27 @@ def fetch_weather(city_name):
 
 
 # --- Afet Son Dakika Haberleri (anasayfa slider'ı) ---
-# Kaynaklar: Anadolu Ajansı'nın herkese açık RSS akışı (anahtar kelimeyle
-# filtrelenir) ve AFAD'ın yukarıda zaten doğrulanmış resmi deprem API'si
-# (anlamlı büyüklükteki depremler haber kartına çevrilir). AFAD'ın genel
-# haber/duyuru akışı için doğrulanmış herkese açık bir RSS/API bulunmadığından
-# kurumsal siteyi scrape etmek yerine bu yol tercih edildi.
-AA_RSS_URL = "https://www.aa.com.tr/tr/rss/default?cat=guncel"
+# Kaynaklar: Anadolu Ajansı'nın herkese açık RSS akışı — "güncel" ve "dünya"
+# kategorileri birlikte, anahtar kelimeyle filtrelenir, böylece sadece
+# Türkiye değil dünya genelindeki afetler de yakalanır — ve USGS'in (ABD
+# Jeoloji Araştırma Kurumu) herkese açık, dünya genelini kapsayan "significant
+# earthquakes" GeoJSON akışı. AFAD'ın deprem API'si sadece Türkiye ve
+# çevresini kapsadığından (bu slider dünya geneli istendiği için) global
+# kapsam için USGS tercih edildi; AFAD verisi sayfadaki "Son Depremler"
+# tablosunda Türkiye'ye özel olarak kullanılmaya devam ediyor.
+AA_RSS_URLS = [
+    "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+    "https://www.aa.com.tr/tr/rss/default?cat=dunya",
+]
+USGS_SIGNIFICANT_WEEK_URL = (
+    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson"
+)
 DISASTER_KEYWORDS = [
     "deprem", "sel", "heyelan", "yangın", "hortum", "fırtına", "çığ",
     "tsunami", "afet", "göçük", "sağanak", "dolu", "kasırga",
 ]
 DISASTER_NEWS_CACHE_KEY = "disaster_news_feed"
 DISASTER_NEWS_CACHE_TTL_SECONDS = 900
-MIN_NEWSWORTHY_MAGNITUDE = 4.0
 
 
 def _matches_disaster_keywords(text):
@@ -163,74 +171,87 @@ def _strip_html(text):
     return re.sub(r"<[^>]+>", "", text or "").strip()
 
 
-def _parse_afad_date(date_str):
-    if not date_str:
-        return None
-    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S"):
-        try:
-            return datetime.strptime(date_str, fmt).replace(tzinfo=timezone.utc)
-        except ValueError:
-            continue
-    return None
-
-
 def fetch_aa_disaster_news(limit=8):
-    """Anadolu Ajansı'nın herkese açık RSS akışından afetle ilgili (anahtar
-    kelime eşleşen) haberleri çeker. Ulaşılamazsa/parse edilemezse boş liste
+    """Anadolu Ajansı'nın herkese açık RSS akışlarından (güncel + dünya)
+    afetle ilgili (anahtar kelime eşleşen) haberleri çeker. Ulaşılamazsa/
+    parse edilemezse o kategoriyi atlar, hiçbiri çalışmazsa boş liste
     döner."""
+    items = []
+    seen_urls = set()
+    for feed_url in AA_RSS_URLS:
+        try:
+            response = requests.get(feed_url, timeout=6)
+            response.raise_for_status()
+            root = ElementTree.fromstring(response.content)
+        except (requests.RequestException, ElementTree.ParseError) as exc:
+            logger.warning("AA RSS verisi alınamadı (%s): %s", feed_url, exc)
+            continue
+
+        for item in root.findall("./channel/item"):
+            title = (item.findtext("title") or "").strip()
+            description = _strip_html(unescape(item.findtext("description") or ""))
+            if not _matches_disaster_keywords(f"{title} {description}"):
+                continue
+
+            url = (item.findtext("link") or "").strip()
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+
+            pub_date_raw = item.findtext("pubDate")
+            try:
+                published_at = parsedate_to_datetime(pub_date_raw) if pub_date_raw else None
+            except (TypeError, ValueError):
+                published_at = None
+
+            enclosure = item.find("enclosure")
+            items.append(
+                {
+                    "title": title,
+                    "summary": description[:220],
+                    "url": url,
+                    "image": enclosure.get("url") if enclosure is not None else None,
+                    "published_at": published_at or datetime.now(timezone.utc),
+                    "source": "Anadolu Ajansı",
+                }
+            )
+
+    items.sort(key=lambda item: item["published_at"], reverse=True)
+    return items[:limit]
+
+
+def _global_earthquake_news_items(limit=4):
+    """USGS'in dünya genelini kapsayan 'önemli depremler' akışından haber
+    kartı üretir. Ulaşılamazsa/parse edilemezse boş liste döner."""
     try:
-        response = requests.get(AA_RSS_URL, timeout=6)
+        response = requests.get(USGS_SIGNIFICANT_WEEK_URL, timeout=6)
         response.raise_for_status()
-        root = ElementTree.fromstring(response.content)
-    except (requests.RequestException, ElementTree.ParseError) as exc:
-        logger.warning("AA RSS verisi alınamadı: %s", exc)
+        features = response.json().get("features") or []
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("USGS deprem verisi alınamadı: %s", exc)
         return []
 
     items = []
-    for item in root.findall("./channel/item"):
-        title = (item.findtext("title") or "").strip()
-        description = _strip_html(unescape(item.findtext("description") or ""))
-        if not _matches_disaster_keywords(f"{title} {description}"):
-            continue
-
-        pub_date_raw = item.findtext("pubDate")
+    for feature in features:
+        props = feature.get("properties") or {}
+        magnitude = props.get("mag")
+        place = props.get("place") or "Bilinmiyor"
+        time_ms = props.get("time")
         try:
-            published_at = parsedate_to_datetime(pub_date_raw) if pub_date_raw else None
-        except (TypeError, ValueError):
+            published_at = (
+                datetime.fromtimestamp(time_ms / 1000, tz=timezone.utc) if time_ms else None
+            )
+        except (TypeError, ValueError, OSError):
             published_at = None
 
-        enclosure = item.find("enclosure")
         items.append(
             {
-                "title": title,
-                "summary": description[:220],
-                "url": (item.findtext("link") or "").strip(),
-                "image": enclosure.get("url") if enclosure is not None else None,
-                "published_at": published_at or datetime.now(timezone.utc),
-                "source": "Anadolu Ajansı",
-            }
-        )
-        if len(items) >= limit:
-            break
-    return items
-
-
-def _afad_earthquake_news_items(limit=4):
-    """AFAD'ın doğrulanmış deprem API'sinden anlamlı büyüklükteki depremleri
-    haber kartı formatına çevirir."""
-    items = []
-    for eq in fetch_recent_earthquakes(limit=15):
-        magnitude = eq.get("magnitude")
-        if magnitude is None or magnitude < MIN_NEWSWORTHY_MAGNITUDE:
-            continue
-        items.append(
-            {
-                "title": f"{magnitude} büyüklüğünde deprem — {eq['location']}",
-                "summary": f"Derinlik: {eq['depth']} km" if eq.get("depth") else "",
-                "url": "https://deprem.afad.gov.tr/last-earthquakes.html",
+                "title": f"M{magnitude} deprem — {place}" if magnitude else f"Deprem — {place}",
+                "summary": "",
+                "url": props.get("url") or "https://earthquake.usgs.gov/earthquakes/map/",
                 "image": None,
-                "published_at": _parse_afad_date(eq.get("date")) or datetime.now(timezone.utc),
-                "source": "AFAD",
+                "published_at": published_at or datetime.now(timezone.utc),
+                "source": "USGS",
             }
         )
         if len(items) >= limit:
@@ -239,13 +260,14 @@ def _afad_earthquake_news_items(limit=4):
 
 
 def fetch_disaster_news(limit=8):
-    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA + AFAD kaynaklarını
-    birleştirip tarihe göre sıralar. Sonuç 15 dakika önbelleklenir."""
+    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA + USGS kaynaklarını
+    (dünya geneli) birleştirip tarihe göre sıralar. Sonuç 15 dakika
+    önbelleklenir."""
     cached = cache.get(DISASTER_NEWS_CACHE_KEY)
     if cached is not None:
         return cached
 
-    combined = fetch_aa_disaster_news(limit=limit) + _afad_earthquake_news_items(limit=4)
+    combined = fetch_aa_disaster_news(limit=limit) + _global_earthquake_news_items(limit=4)
     combined.sort(key=lambda item: item["published_at"], reverse=True)
     result = combined[:limit]
 

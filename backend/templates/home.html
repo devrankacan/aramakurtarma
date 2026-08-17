@@ -32,6 +32,39 @@
   </a>
 </div>
 
+<section class="panel news-panel">
+  <h2>Afet Son Dakika</h2>
+  <p class="muted">Anadolu Ajansı ve AFAD kaynaklarından derlenir, otomatik güncellenir.</p>
+
+  {% if disaster_news %}
+  <div class="news-slider" id="news-slider">
+    <button class="news-nav prev" type="button" aria-label="Önceki haber">&lsaquo;</button>
+    <div class="news-track" id="news-track">
+      {% for item in disaster_news %}
+      <a class="news-card" href="{{ item.url }}" target="_blank" rel="noopener">
+        {% if item.image %}
+        <img class="news-card-img" src="{{ item.image }}" alt="">
+        {% else %}
+        <span class="news-card-img news-card-img-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        </span>
+        {% endif %}
+        <span class="news-card-body">
+          <span class="news-source-badge">{{ item.source }}</span>
+          <strong class="news-card-title">{{ item.title }}</strong>
+          {% if item.summary %}<span class="news-card-summary">{{ item.summary }}</span>{% endif %}
+          <span class="news-date">{{ item.published_at|date:"d.m.Y H:i" }}</span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+    <button class="news-nav next" type="button" aria-label="Sonraki haber">&rsaquo;</button>
+  </div>
+  {% else %}
+  <p class="muted">Şu anda gösterilecek afet haberi bulunmuyor.</p>
+  {% endif %}
+</section>
+
 <section class="panel quake-panel">
   <h2>
     Son Depremler
@@ -91,6 +124,44 @@
   .card h2 { margin: 0 0 0.45rem; font-size: 1.05rem; color: var(--brand-dark); }
   .card p { margin: 0; font-size: 0.9rem; color: var(--muted); }
 
+  .news-panel { margin-bottom: 1.75rem; }
+  .news-slider { position: relative; margin-top: 1rem; }
+  .news-track {
+    display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    scroll-behavior: smooth; padding-bottom: 0.35rem; scrollbar-width: none;
+  }
+  .news-track::-webkit-scrollbar { display: none; }
+  .news-card {
+    flex: 0 0 280px; scroll-snap-align: start; display: flex; flex-direction: column;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    text-decoration: none; color: inherit; transition: box-shadow .15s, transform .15s;
+  }
+  .news-card:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .news-card-img { width: 100%; height: 140px; object-fit: cover; display: block; }
+  .news-card-img-placeholder {
+    display: flex; align-items: center; justify-content: center; background: #eef2f6; color: var(--accent);
+  }
+  .news-card-img-placeholder svg { width: 34px; height: 34px; }
+  .news-card-body { display: flex; flex-direction: column; padding: 0.9rem 1.05rem 1.1rem; gap: 0.35rem; }
+  .news-source-badge {
+    align-self: flex-start; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.4px; color: var(--brand); background: rgba(28,79,130,0.08);
+    padding: 0.15rem 0.5rem; border-radius: 999px;
+  }
+  .news-card-title { font-size: 0.92rem; color: var(--brand-dark); line-height: 1.35; }
+  .news-card-summary { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .news-date { font-size: 0.74rem; color: var(--muted); margin-top: 0.2rem; }
+  .news-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
+    background: #fff; color: var(--brand); font-size: 1.2rem; line-height: 1; cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .news-nav:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .news-nav.prev { left: -14px; }
+  .news-nav.next { right: -14px; }
+  @media (max-width: 640px) { .news-nav { display: none; } }
+
   .quake-panel .source-tag {
     display: inline-flex; align-items: center; vertical-align: middle; margin-left: 0.65rem;
     padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: #fff;
@@ -106,4 +177,39 @@
   .mag-mid { background: #fdecd2; color: #9a5b00; }
   .mag-high { background: #fbdede; color: #a11d1d; }
 </style>
+
+<script>
+  (function () {
+    var track = document.getElementById('news-track');
+    if (!track) return;
+    var slider = document.getElementById('news-slider');
+    var prevBtn = slider.querySelector('.news-nav.prev');
+    var nextBtn = slider.querySelector('.news-nav.next');
+
+    function cardStep() {
+      var card = track.querySelector('.news-card');
+      return card ? card.getBoundingClientRect().width + 16 : 296;
+    }
+    function atEnd() {
+      return track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+    }
+    function scrollNext() {
+      if (atEnd()) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: cardStep(), behavior: 'smooth' });
+      }
+    }
+    function scrollPrev() {
+      track.scrollBy({ left: -cardStep(), behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', scrollPrev);
+    nextBtn.addEventListener('click', scrollNext);
+
+    var timer = setInterval(scrollNext, 6000);
+    slider.addEventListener('mouseenter', function () { clearInterval(timer); });
+    slider.addEventListener('mouseleave', function () { timer = setInterval(scrollNext, 6000); });
+  })();
+</script>
 {% endblock %}

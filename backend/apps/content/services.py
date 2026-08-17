@@ -139,21 +139,17 @@ def fetch_weather(city_name):
 
 
 # --- Afet Son Dakika Haberleri (anasayfa slider'ı) ---
-# Kaynaklar: Anadolu Ajansı'nın herkese açık RSS akışı — "güncel" ve "dünya"
-# kategorileri birlikte, anahtar kelimeyle filtrelenir, böylece sadece
-# Türkiye değil dünya genelindeki afetler de yakalanır — ve USGS'in (ABD
-# Jeoloji Araştırma Kurumu) herkese açık, dünya genelini kapsayan "significant
-# earthquakes" GeoJSON akışı. AFAD'ın deprem API'si sadece Türkiye ve
-# çevresini kapsadığından (bu slider dünya geneli istendiği için) global
-# kapsam için USGS tercih edildi; AFAD verisi sayfadaki "Son Depremler"
-# tablosunda Türkiye'ye özel olarak kullanılmaya devam ediyor.
+# Bunlar afet OLAYLARININ ham verisi değil, afetlerle İLGİLİ gerçek haber
+# makaleleri olmalı — o yüzden kaynak, Anadolu Ajansı'nın herkese açık RSS
+# akışı: "güncel" ve "dünya" kategorileri birlikte taranıp anahtar kelimeyle
+# filtrelenir, böylece sadece Türkiye değil dünya genelindeki afetlerle
+# ilgili haberler de yakalanır. Ham deprem event verisi (AFAD/USGS gibi)
+# burada kullanılmıyor; o veri sayfadaki ayrı "Son Depremler" tablosunda yer
+# alıyor.
 AA_RSS_URLS = [
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.aa.com.tr/tr/rss/default?cat=dunya",
 ]
-USGS_SIGNIFICANT_WEEK_URL = (
-    "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson"
-)
 DISASTER_KEYWORDS = [
     "deprem", "sel", "heyelan", "yangın", "hortum", "fırtına", "çığ",
     "tsunami", "afet", "göçük", "sağanak", "dolu", "kasırga",
@@ -220,56 +216,13 @@ def fetch_aa_disaster_news(limit=8):
     return items[:limit]
 
 
-def _global_earthquake_news_items(limit=4):
-    """USGS'in dünya genelini kapsayan 'önemli depremler' akışından haber
-    kartı üretir. Ulaşılamazsa/parse edilemezse boş liste döner."""
-    try:
-        response = requests.get(USGS_SIGNIFICANT_WEEK_URL, timeout=6)
-        response.raise_for_status()
-        features = response.json().get("features") or []
-    except (requests.RequestException, ValueError) as exc:
-        logger.warning("USGS deprem verisi alınamadı: %s", exc)
-        return []
-
-    items = []
-    for feature in features:
-        props = feature.get("properties") or {}
-        magnitude = props.get("mag")
-        place = props.get("place") or "Bilinmiyor"
-        time_ms = props.get("time")
-        try:
-            published_at = (
-                datetime.fromtimestamp(time_ms / 1000, tz=timezone.utc) if time_ms else None
-            )
-        except (TypeError, ValueError, OSError):
-            published_at = None
-
-        items.append(
-            {
-                "title": f"M{magnitude} deprem — {place}" if magnitude else f"Deprem — {place}",
-                "summary": "",
-                "url": props.get("url") or "https://earthquake.usgs.gov/earthquakes/map/",
-                "image": None,
-                "published_at": published_at or datetime.now(timezone.utc),
-                "source": "USGS",
-            }
-        )
-        if len(items) >= limit:
-            break
-    return items
-
-
 def fetch_disaster_news(limit=8):
-    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA + USGS kaynaklarını
-    (dünya geneli) birleştirip tarihe göre sıralar. Sonuç 15 dakika
-    önbelleklenir."""
+    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA'nın dünya genelindeki
+    afetle ilgili haberlerini döner. Sonuç 15 dakika önbelleklenir."""
     cached = cache.get(DISASTER_NEWS_CACHE_KEY)
     if cached is not None:
         return cached
 
-    combined = fetch_aa_disaster_news(limit=limit) + _global_earthquake_news_items(limit=4)
-    combined.sort(key=lambda item: item["published_at"], reverse=True)
-    result = combined[:limit]
-
+    result = fetch_aa_disaster_news(limit=limit)
     cache.set(DISASTER_NEWS_CACHE_KEY, result, DISASTER_NEWS_CACHE_TTL_SECONDS)
     return result

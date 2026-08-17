@@ -140,16 +140,20 @@ def fetch_weather(city_name):
 
 # --- Afet Son Dakika Haberleri (anasayfa slider'ı) ---
 # Bunlar afet OLAYLARININ ham verisi değil, afetlerle İLGİLİ gerçek haber
-# makaleleri olmalı — o yüzden kaynak, Anadolu Ajansı'nın herkese açık RSS
-# akışı: "güncel" ve "dünya" kategorileri birlikte taranıp anahtar kelimeyle
-# filtrelenir, böylece sadece Türkiye değil dünya genelindeki afetlerle
-# ilgili haberler de yakalanır. Ham deprem event verisi (AFAD/USGS gibi)
-# burada kullanılmıyor; o veri sayfadaki ayrı "Son Depremler" tablosunda yer
-# alıyor.
+# makaleleri olmalı. İki kaynak birleştirilir:
+# 1) Anadolu Ajansı'nın herkese açık RSS akışı — "güncel" ve "dünya"
+#    kategorileri birlikte taranıp anahtar kelimeyle filtrelenir (genel
+#    haber akışı olduğu için filtre gerekiyor).
+# 2) ReliefWeb (BM İnsani İşler Koordinasyon Ofisi - OCHA) — herkese açık,
+#    zaten sadece afet/insani kriz haberlerinden oluşan RSS akışı; filtreye
+#    gerek yok, İngilizce içerik.
+# Ham deprem event verisi (AFAD/USGS gibi) burada kullanılmıyor; o veri
+# sayfadaki ayrı "Son Depremler" tablosunda yer alıyor.
 AA_RSS_URLS = [
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.aa.com.tr/tr/rss/default?cat=dunya",
 ]
+RELIEFWEB_RSS_URL = "https://reliefweb.int/updates/rss.xml"
 DISASTER_KEYWORDS = [
     "deprem", "sel", "heyelan", "yangın", "hortum", "fırtına", "çığ",
     "tsunami", "afet", "göçük", "sağanak", "dolu", "kasırga",
@@ -167,62 +171,81 @@ def _strip_html(text):
     return re.sub(r"<[^>]+>", "", text or "").strip()
 
 
+def _fetch_rss_items(feed_url, source_label, require_keyword_match):
+    """Standart RSS 2.0 akışını (item/title, description, link, pubDate,
+    enclosure) ortak formata çevirir. Ulaşılamazsa/parse edilemezse boş
+    liste döner — çağıran taraf bunu diğer kaynaklardan bağımsız ele alır."""
+    try:
+        response = requests.get(feed_url, timeout=6)
+        response.raise_for_status()
+        root = ElementTree.fromstring(response.content)
+    except (requests.RequestException, ElementTree.ParseError) as exc:
+        logger.warning("RSS verisi alınamadı (%s): %s", feed_url, exc)
+        return []
+
+    items = []
+    for item in root.findall("./channel/item"):
+        title = (item.findtext("title") or "").strip()
+        description = _strip_html(unescape(item.findtext("description") or ""))
+        if require_keyword_match and not _matches_disaster_keywords(f"{title} {description}"):
+            continue
+
+        pub_date_raw = item.findtext("pubDate")
+        try:
+            published_at = parsedate_to_datetime(pub_date_raw) if pub_date_raw else None
+        except (TypeError, ValueError):
+            published_at = None
+
+        enclosure = item.find("enclosure")
+        items.append(
+            {
+                "title": title,
+                "summary": description[:220],
+                "url": (item.findtext("link") or "").strip(),
+                "image": enclosure.get("url") if enclosure is not None else None,
+                "published_at": published_at or datetime.now(timezone.utc),
+                "source": source_label,
+            }
+        )
+    return items
+
+
 def fetch_aa_disaster_news(limit=8):
     """Anadolu Ajansı'nın herkese açık RSS akışlarından (güncel + dünya)
-    afetle ilgili (anahtar kelime eşleşen) haberleri çeker. Ulaşılamazsa/
-    parse edilemezse o kategoriyi atlar, hiçbiri çalışmazsa boş liste
-    döner."""
+    afetle ilgili (anahtar kelime eşleşen) haberleri çeker."""
     items = []
     seen_urls = set()
     for feed_url in AA_RSS_URLS:
-        try:
-            response = requests.get(feed_url, timeout=6)
-            response.raise_for_status()
-            root = ElementTree.fromstring(response.content)
-        except (requests.RequestException, ElementTree.ParseError) as exc:
-            logger.warning("AA RSS verisi alınamadı (%s): %s", feed_url, exc)
-            continue
-
-        for item in root.findall("./channel/item"):
-            title = (item.findtext("title") or "").strip()
-            description = _strip_html(unescape(item.findtext("description") or ""))
-            if not _matches_disaster_keywords(f"{title} {description}"):
+        for entry in _fetch_rss_items(feed_url, "Anadolu Ajansı", require_keyword_match=True):
+            if entry["url"] in seen_urls:
                 continue
-
-            url = (item.findtext("link") or "").strip()
-            if url in seen_urls:
-                continue
-            seen_urls.add(url)
-
-            pub_date_raw = item.findtext("pubDate")
-            try:
-                published_at = parsedate_to_datetime(pub_date_raw) if pub_date_raw else None
-            except (TypeError, ValueError):
-                published_at = None
-
-            enclosure = item.find("enclosure")
-            items.append(
-                {
-                    "title": title,
-                    "summary": description[:220],
-                    "url": url,
-                    "image": enclosure.get("url") if enclosure is not None else None,
-                    "published_at": published_at or datetime.now(timezone.utc),
-                    "source": "Anadolu Ajansı",
-                }
-            )
+            seen_urls.add(entry["url"])
+            items.append(entry)
 
     items.sort(key=lambda item: item["published_at"], reverse=True)
     return items[:limit]
 
 
+def fetch_reliefweb_disaster_news(limit=8):
+    """ReliefWeb'in (BM OCHA) herkese açık RSS akışından afet/insani kriz
+    haberlerini çeker. Akış zaten sadece bu konularda olduğundan ek anahtar
+    kelime filtresi uygulanmaz."""
+    items = _fetch_rss_items(RELIEFWEB_RSS_URL, "ReliefWeb (BM OCHA)", require_keyword_match=False)
+    items.sort(key=lambda item: item["published_at"], reverse=True)
+    return items[:limit]
+
+
 def fetch_disaster_news(limit=8):
-    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA'nın dünya genelindeki
-    afetle ilgili haberlerini döner. Sonuç 15 dakika önbelleklenir."""
+    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA + ReliefWeb
+    kaynaklarını birleştirip tarihe göre sıralar. Sonuç 15 dakika
+    önbelleklenir."""
     cached = cache.get(DISASTER_NEWS_CACHE_KEY)
     if cached is not None:
         return cached
 
-    result = fetch_aa_disaster_news(limit=limit)
+    combined = fetch_aa_disaster_news(limit=limit) + fetch_reliefweb_disaster_news(limit=limit)
+    combined.sort(key=lambda item: item["published_at"], reverse=True)
+    result = combined[:limit]
+
     cache.set(DISASTER_NEWS_CACHE_KEY, result, DISASTER_NEWS_CACHE_TTL_SECONDS)
     return result

@@ -4,9 +4,14 @@
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
 <style>
   /* Sidebar'ı büyütülen takvim + harita yan yana sığsın diye genişlet
-     (varsayılan 260px) */
-  .colMS { margin-right: 860px; }
-  #content-related { width: 820px; margin-right: -860px; }
+     (varsayılan 260px). Sadece geniş ekranlarda: Django'nun kendi admin
+     responsive.css'i 1024px altında sidebar'ı 290px'e düşürüyor, 767px
+     altında da tamamen alt alta diziyor — bu min-width olmadan o mobil
+     davranışın önüne geçip düzeni bozardı. */
+  @media (min-width: 1025px) {
+    .colMS { margin-right: 860px; }
+    #content-related { width: 820px; margin-right: -860px; }
+  }
 
   #content-related .dash-row {
     display: flex;
@@ -16,7 +21,16 @@
   #content-related .dash-row .dash-calendar { flex: 0 0 320px; }
   #content-related .dash-row .dash-map { flex: 1 1 auto; min-width: 0; }
 
+  /* Dar ekranlarda (tablet/mobil) takvim + harita yan yana sığmaz;
+     harita takvimin altına düşsün. */
+  @media (max-width: 1024px) {
+    #content-related .dash-row { flex-direction: column; }
+    #content-related .dash-row .dash-calendar { flex: 1 1 auto; width: 100%; }
+    #content-related .dash-row .dash-map { width: 100%; }
+  }
+
   #content-related .dash-module {
+    box-sizing: border-box;
     background: #fff;
     border: 1px solid #e2e6ea;
     border-radius: 10px;

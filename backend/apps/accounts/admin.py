@@ -14,7 +14,7 @@ class TeamMembershipInline(admin.TabularInline):
     fields = ("team", "joined_at", "left_at")
 
 
-SENSITIVE_HEALTH_FIELDS = {"chronic_conditions", "medications", "allergies", "fitness_notes"}
+SENSITIVE_HEALTH_FIELDS = {"national_id", "chronic_conditions", "medications", "allergies", "fitness_notes"}
 
 
 class UserHealthProfileInline(admin.StackedInline):
@@ -48,6 +48,9 @@ class UserAdmin(DjangoUserAdmin):
                     "email",
                     "phone_number",
                     "birth_date",
+                    "occupation",
+                    "driving_license",
+                    "address",
                     "avatar",
                     "avatar_preview",
                 )

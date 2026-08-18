@@ -9,6 +9,12 @@ from .models import Role, Team, TeamMembership, UserTeamRole
 
 
 class ExcelImportForm(forms.Form):
+    target_team = forms.ModelChoiceField(
+        queryset=Team.objects.all().order_by("name", "city"),
+        required=False,
+        label="Hedef Ekip",
+        help_text="Dosyada 'Ekip Adı' sütunu yoksa/boşsa satırlar bu ekibe eklenir.",
+    )
     file = forms.FileField(label="Excel Dosyası (.xlsx)")
 
     def clean_file(self):
@@ -69,7 +75,10 @@ class TeamMembershipAdmin(admin.ModelAdmin):
             form = ExcelImportForm(request.POST, request.FILES)
             if form.is_valid():
                 try:
-                    result = parse_and_import(form.cleaned_data["file"])
+                    result = parse_and_import(
+                        form.cleaned_data["file"],
+                        default_team=form.cleaned_data["target_team"],
+                    )
                 except ValueError as exc:
                     messages.error(request, str(exc))
                     return redirect("admin:teams_teammembership_import")

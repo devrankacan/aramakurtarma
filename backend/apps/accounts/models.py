@@ -11,6 +11,9 @@ class User(AbstractUser):
 
     phone_number = models.CharField("Telefon Numarası", max_length=20, blank=True)
     birth_date = models.DateField("Doğum Tarihi", null=True, blank=True)
+    occupation = models.CharField("Mesleği", max_length=150, blank=True)
+    driving_license = models.CharField("Ehliyet", max_length=50, blank=True)
+    address = models.TextField("Adres", blank=True)
     avatar = models.ImageField(
         "Profil Fotoğrafı",
         upload_to="avatars/%Y/%m/",
@@ -39,12 +42,16 @@ class BloodType(models.TextChoices):
 
 
 class UserHealthProfile(models.Model):
-    """Saha operasyonlarında dikkat edilmesi gereken sağlık bilgileri. Kan grubu ve acil
-    durum iletişim bilgisi dışındaki alanlar KVKK özel nitelikli veri olduğu için
-    alan-bazlı şifrelenir; sadece superuser görebilir, her görüntüleme kayıt altına alınır."""
+    """Saha operasyonlarında dikkat edilmesi gereken sağlık bilgileri ve diğer hassas
+    kişisel veriler. Kan grubu ve acil durum iletişim bilgisi dışındaki alanlar KVKK
+    özel nitelikli/hassas veri olduğu için alan-bazlı şifrelenir; sadece superuser
+    görebilir, her görüntüleme kayıt altına alınır."""
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="health_profile", verbose_name="Kullanıcı"
+    )
+    national_id = EncryptedTextField(
+        "T.C. Kimlik No", blank=True, help_text="11 haneli T.C. Kimlik Numarası."
     )
     blood_type = models.CharField(
         "Kan Grubu", max_length=3, choices=BloodType.choices, blank=True

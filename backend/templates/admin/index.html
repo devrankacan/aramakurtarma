@@ -3,9 +3,18 @@
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
 <style>
-  /* Sidebar'ı büyütülen takvim için genişlet (varsayılan 260px) */
-  .colMS { margin-right: 380px; }
-  #content-related { width: 340px; margin-right: -380px; }
+  /* Sidebar'ı büyütülen takvim + harita yan yana sığsın diye genişlet
+     (varsayılan 260px) */
+  .colMS { margin-right: 860px; }
+  #content-related { width: 820px; margin-right: -860px; }
+
+  #content-related .dash-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+  #content-related .dash-row .dash-calendar { flex: 0 0 320px; }
+  #content-related .dash-row .dash-map { flex: 1 1 auto; min-width: 0; }
 
   #content-related .dash-module {
     background: #fff;
@@ -222,9 +231,11 @@
 {% block sidebar %}
 {% load calendar_tags content_tags %}
 <div id="content-related">
-    {% upcoming_events %}
+    <div class="dash-row">
+        {% upcoming_events %}
+        {% team_cities_map %}
+    </div>
     {% upcoming_anniversaries %}
-    {% team_cities_map %}
     {% weather_widget %}
     {% upcoming_birthdays %}
 </div>

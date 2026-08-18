@@ -7,6 +7,7 @@ from xml.etree import ElementTree
 
 import requests
 from django.core.cache import cache
+from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -224,10 +225,12 @@ def fetch_aa_disaster_news(limit=8):
                 {
                     "title": title,
                     "summary": description[:220],
+                    "full_content": "",  # AA telifli/ticari — tam metin republish edilmiyor
                     "url": url,
                     "image": enclosure.get("url") if enclosure is not None else None,
                     "published_at": published_at or datetime.now(timezone.utc),
                     "source": "Anadolu Ajansı",
+                    "source_key": "aa",
                 }
             )
 
@@ -259,10 +262,13 @@ def _translate_to_turkish(text):
 
 def fetch_reliefweb_disaster_news(limit=5):
     """ReliefWeb'in (BM OCHA) herkese açık, dünya genelini kapsayan RSS
-    akışından afet/insani kriz haberlerini çekip başlık ve özeti Türkçeye
-    çevirir. Görseli kullanılmaz (çoğunlukla PDF/rapor eki simgesi çıkıyor);
-    şablon tarafında sabit placeholder ikonu gösterilir. Ulaşılamazsa/parse
-    edilemezse boş liste döner."""
+    akışından afet/insani kriz haberlerini çekip başlığı ve içeriğin
+    tamamını Türkçeye çevirir. ReliefWeb açık lisanslı (BM/insani yardım
+    kuruluşları) olduğundan tam içerik saklanıp kendi detay sayfamızda
+    gösterilebiliyor — AA'dan farklı olarak. Görseli kullanılmaz
+    (çoğunlukla PDF/rapor eki simgesi çıkıyor); şablon tarafında sabit
+    placeholder ikonu gösterilir. Ulaşılamazsa/parse edilemezse boş liste
+    döner."""
     try:
         response = requests.get(RELIEFWEB_RSS_URL, timeout=6)
         response.raise_for_status()
@@ -274,7 +280,7 @@ def fetch_reliefweb_disaster_news(limit=5):
     items = []
     for item in root.findall("./channel/item")[:limit]:
         title_en = (item.findtext("title") or "").strip()
-        description_en = _strip_html(unescape(item.findtext("description") or ""))[:220]
+        description_en = _strip_html(unescape(item.findtext("description") or ""))
 
         pub_date_raw = item.findtext("pubDate")
         try:
@@ -282,23 +288,65 @@ def fetch_reliefweb_disaster_news(limit=5):
         except (TypeError, ValueError):
             published_at = None
 
+        full_content_tr = _translate_to_turkish(description_en)
         items.append(
             {
                 "title": _translate_to_turkish(title_en),
-                "summary": _translate_to_turkish(description_en),
+                "summary": full_content_tr[:220],
+                "full_content": full_content_tr,
                 "url": (item.findtext("link") or "").strip(),
                 "image": None,
                 "published_at": published_at or datetime.now(timezone.utc),
                 "source": "ReliefWeb (BM OCHA)",
+                "source_key": "reliefweb",
             }
         )
     return items
 
 
+# Türkçeye özgü karakterlerin ASCII slug'a düzgün çevrilmesi için — Django'nun
+# varsayılan slugify()'ı bunları sessizce siler (örn. "sağanak" -> "sanak").
+_TURKISH_SLUG_MAP = str.maketrans(
+    {"ğ": "g", "Ğ": "G", "ü": "u", "Ü": "U", "ş": "s", "Ş": "S",
+     "ı": "i", "İ": "I", "ö": "o", "Ö": "O", "ç": "c", "Ç": "C"}
+)
+
+
+def _persist_news_item(entry):
+    """Slider'da gösterilen bir haberi kalıcı DisasterNewsItem kaydına
+    çevirir (yoksa oluşturur) ki kendi başlığına uygun, kalıcı bir detay
+    sayfası URL'si olsun. Aynı kaynak linkine sahip kayıt zaten varsa onu
+    döner, yeniden oluşturmaz."""
+    from apps.content.models import DisasterNewsItem
+
+    existing = DisasterNewsItem.objects.filter(source_url=entry["url"]).first()
+    if existing:
+        return existing
+
+    base_slug = slugify(entry["title"].translate(_TURKISH_SLUG_MAP))[:200] or "haber"
+    slug = base_slug
+    suffix = 1
+    while DisasterNewsItem.objects.filter(slug=slug).exists():
+        suffix += 1
+        slug = f"{base_slug}-{suffix}"
+
+    return DisasterNewsItem.objects.create(
+        slug=slug,
+        title=entry["title"],
+        summary=entry["summary"],
+        full_content=entry.get("full_content", ""),
+        source=entry["source_key"],
+        source_url=entry["url"],
+        image=entry.get("image") or "",
+        published_at=entry["published_at"],
+    )
+
+
 def fetch_disaster_news(limit=8):
     """Anasayfadaki 'Afet Son Dakika' slider'ı için AA (Türkçe) + ReliefWeb
     (dünya geneli, Türkçeye çevrilmiş) kaynaklarını birleştirip tarihe göre
-    sıralar. Sonuç 15 dakika önbelleklenir."""
+    sıralar. Her haber kendi detay sayfamızda saklanır (slug bazlı URL);
+    sonuç 15 dakika önbelleklenir."""
     cached = cache.get(DISASTER_NEWS_CACHE_KEY)
     if cached is not None:
         return cached
@@ -306,6 +354,12 @@ def fetch_disaster_news(limit=8):
     combined = fetch_aa_disaster_news(limit=limit) + fetch_reliefweb_disaster_news(limit=5)
     combined.sort(key=lambda item: item["published_at"], reverse=True)
     result = combined[:limit]
+
+    from django.urls import reverse
+
+    for entry in result:
+        news_item = _persist_news_item(entry)
+        entry["detail_url"] = reverse("disaster_news_detail", args=[news_item.slug])
 
     cache.set(DISASTER_NEWS_CACHE_KEY, result, DISASTER_NEWS_CACHE_TTL_SECONDS)
     return result

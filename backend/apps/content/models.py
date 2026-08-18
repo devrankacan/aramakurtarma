@@ -44,6 +44,40 @@ class KnowledgeBaseDocument(models.Model):
         return self.title
 
 
+class DisasterNewsItem(models.Model):
+    """Anasayfadaki 'Afet Son Dakika' slider'ından tıklanan bir haberin kendi
+    sitemizdeki detay sayfası için saklanan kaydı. Anadolu Ajansı (telifli,
+    ticari) için sadece çevrilmiş özet + kaynağa link gösterilir;
+    ReliefWeb/BM OCHA (açık lisanslı) için tam çevrilmiş içerik de saklanır.
+    Bu tablo apps/content/services.py içindeki afet haberi çekme işlevi
+    tarafından otomatik doldurulur, admin panelinden elle eklenmez."""
+
+    SOURCE_AA = "aa"
+    SOURCE_RELIEFWEB = "reliefweb"
+    SOURCE_CHOICES = [
+        (SOURCE_AA, "Anadolu Ajansı"),
+        (SOURCE_RELIEFWEB, "ReliefWeb (BM OCHA)"),
+    ]
+
+    slug = models.SlugField("Slug", max_length=250, unique=True)
+    title = models.CharField("Başlık (Türkçe)", max_length=300)
+    summary = models.TextField("Özet (Türkçe)", blank=True)
+    full_content = models.TextField("Tam İçerik (Türkçe)", blank=True)
+    source = models.CharField("Kaynak", max_length=20, choices=SOURCE_CHOICES)
+    source_url = models.URLField("Orijinal Kaynak Linki", max_length=500, unique=True)
+    image = models.URLField("Görsel URL", max_length=500, blank=True)
+    published_at = models.DateTimeField("Yayın Tarihi")
+    fetched_at = models.DateTimeField("Çekilme Tarihi", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Afet Haberi"
+        verbose_name_plural = "Afet Haberleri"
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return self.title
+
+
 class WeatherLocation(models.Model):
     """Admin ana sayfasındaki hava durumu kutusunda gösterilecek il."""
 

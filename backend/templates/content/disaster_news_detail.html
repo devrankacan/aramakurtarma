@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ news_item.title }} — İyilik Derneği Arama Kurtarma{% endblock %}
+{% block extra_head %}
+<style>
+  .news-detail-image { width: 100%; max-height: 380px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem; }
+  .news-detail-body { line-height: 1.6; }
+  .news-detail-meta { display: flex; align-items: center; gap: 0.65rem; margin: 0.35rem 0 1.1rem; }
+  .news-detail-source-badge {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--brand); background: rgba(28,79,130,0.08); padding: 0.2rem 0.6rem; border-radius: 999px;
+  }
+  .news-detail-source-link {
+    display: inline-block; margin-top: 1.5rem; padding: 0.7rem 1.4rem; background: var(--brand);
+    color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.92rem;
+  }
+  .news-detail-source-link:hover { background: var(--brand-dark); }
+  .news-detail-translation-note { margin-top: 1.25rem; font-size: 0.78rem; color: var(--muted); font-style: italic; }
+</style>
+{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'home' %}">&larr; Ana sayfa</a>
+<section class="panel">
+  {% if news_item.image %}
+  <img class="news-detail-image" src="{{ news_item.image }}" alt="{{ news_item.title }}"
+       onerror="this.style.display='none';">
+  {% endif %}
+  <h2>{{ news_item.title }}</h2>
+  <div class="news-detail-meta">
+    <span class="news-detail-source-badge">{{ news_item.get_source_display }}</span>
+    <span class="muted">{{ news_item.published_at|date:"d.m.Y H:i" }}</span>
+  </div>
+
+  {% if news_item.full_content %}
+  <div class="news-detail-body">{{ news_item.full_content|linebreaksbr }}</div>
+  <p class="news-detail-translation-note">
+    Bu haber İngilizce orijinalinden otomatik çevrilmiştir, çeviride küçük farklılıklar olabilir.
+    <a href="{{ news_item.source_url }}" target="_blank" rel="noopener">Orijinal kaynağı görüntüle</a>.
+  </p>
+  {% else %}
+  <div class="news-detail-body">{{ news_item.summary|linebreaksbr }}</div>
+  <a class="news-detail-source-link" href="{{ news_item.source_url }}" target="_blank" rel="noopener">
+    Haberin tamamını {{ news_item.get_source_display }}'da oku
+  </a>
+  {% endif %}
+</section>
+{% endblock %}

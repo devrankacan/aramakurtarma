@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Announcement, KnowledgeBaseDocument, WeatherLocation
+from .models import Announcement, DisasterNewsItem, KnowledgeBaseDocument, WeatherLocation
 
 
 @admin.register(Announcement)
@@ -49,3 +49,25 @@ class KnowledgeBaseDocumentAdmin(admin.ModelAdmin):
 class WeatherLocationAdmin(admin.ModelAdmin):
     list_display = ("name", "is_active", "order")
     list_editable = ("is_active", "order")
+
+
+@admin.register(DisasterNewsItem)
+class DisasterNewsItemAdmin(admin.ModelAdmin):
+    """Bu kayıtlar otomatik olarak afet haberi çekme işlevi tarafından
+    doldurulur (bkz. apps/content/services.py) — elle ekleme yok, sadece
+    inceleme/gerekirse silme amaçlı."""
+
+    list_display = ("title", "source", "published_at", "fetched_at")
+    list_filter = ("source",)
+    search_fields = ("title", "summary")
+    date_hierarchy = "published_at"
+    readonly_fields = (
+        "slug", "title", "summary", "full_content", "source",
+        "source_url", "image", "published_at", "fetched_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

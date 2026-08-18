@@ -41,7 +41,7 @@
     <button class="news-nav prev" type="button" aria-label="Önceki haber">&lsaquo;</button>
     <div class="news-track" id="news-track">
       {% for item in disaster_news %}
-      <a class="news-card" href="{{ item.url }}" target="_blank" rel="noopener">
+      <a class="news-card" href="{{ item.detail_url }}">
         {% if item.image %}
         <img class="news-card-img" src="{{ item.image }}" alt=""
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">

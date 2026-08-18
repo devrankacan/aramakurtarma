@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
-from .models import Announcement, KnowledgeBaseDocument
+from .models import Announcement, DisasterNewsItem, KnowledgeBaseDocument
 
 
 class KnowledgeBaseListView(ListView):
@@ -33,3 +33,9 @@ class AnnouncementDetailView(DetailView):
         return Announcement.objects.filter(
             is_published=True, published_at__lte=timezone.now()
         )
+
+
+class DisasterNewsDetailView(DetailView):
+    model = DisasterNewsItem
+    template_name = "content/disaster_news_detail.html"
+    context_object_name = "news_item"

@@ -171,6 +171,37 @@
     color: #1aa6b7;
   }
   #content-related .dash-weather-icon svg { width: 18px; height: 18px; }
+
+  /* Ekip Şehirleri Haritası */
+  #content-related .dash-map-count {
+    margin: 0.6rem 0 0.5rem;
+    font-size: 0.82rem;
+    color: #4a5560;
+    font-weight: 600;
+  }
+  #content-related .tr-map {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 0.3rem;
+  }
+  #content-related .tr-map path.tr-province {
+    fill: #dde3e8;
+    stroke: #fff;
+    stroke-width: 0.6;
+    transition: fill .15s;
+  }
+  #content-related .tr-map path.tr-province.is-active {
+    fill: #1c4f82;
+  }
+  #content-related .tr-map path.tr-province:hover {
+    fill: #1aa6b7;
+  }
+  #content-related .dash-map-attribution {
+    margin: 0.5rem 0 0;
+    font-size: 0.62rem;
+    color: #aab3bb;
+  }
 </style>
 {% endblock %}
 
@@ -193,6 +224,7 @@
 <div id="content-related">
     {% upcoming_events %}
     {% upcoming_anniversaries %}
+    {% team_cities_map %}
     {% weather_widget %}
     {% upcoming_birthdays %}
 </div>

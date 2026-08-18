@@ -1,0 +1,17 @@
+<div class="module dash-module dash-map">
+    <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.7-6.5-11a6.5 6.5 0 0 1 13 0c0 5.3-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        Ekiplerimizin Bulunduğu Şehirler
+    </h2>
+    {% if active_cities %}
+    <p class="dash-map-count">{{ active_count }} şehirde ekibimiz var</p>
+    {% else %}
+    <p class="dash-empty">Henüz şehre atanmış ekip yok.</p>
+    {% endif %}
+    <svg viewBox="{{ viewbox }}" class="tr-map" role="img" aria-label="Ekiplerimizin bulunduğu şehirleri gösteren Türkiye haritası">
+        {% for p in provinces %}
+        <path class="tr-province{% if p.name in active_cities %} is-active{% endif %}" d="{{ p.d }}"><title>{{ p.name }}</title></path>
+        {% endfor %}
+    </svg>
+    <p class="dash-map-attribution">Harita verisi: © OpenStreetMap katkıda bulunanlar (ODbL)</p>
+</div>

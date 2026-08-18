@@ -140,19 +140,28 @@ def fetch_weather(city_name):
 
 # --- Afet Son Dakika Haberleri (anasayfa slider'ı) ---
 # Bunlar afet OLAYLARININ ham verisi değil, afetlerle İLGİLİ gerçek haber
-# makaleleri olmalı. Kaynak: Anadolu Ajansı'nın herkese açık RSS akışı —
-# "güncel" ve "dünya" kategorileri birlikte taranıp anahtar kelimeyle
-# filtrelenir (genel haber akışı olduğu için filtre gerekiyor). Türkçe
-# içerik ve gerçek haber fotoğrafları sunduğu için tercih edildi.
-# (ReliefWeb/BM OCHA denendi ama görselleri çoğunlukla PDF/rapor eki
-# simgesiydi, gerçek fotoğraf değildi, içerik de İngilizce'ydi — bu yüzden
-# kaldırıldı.) Ham deprem event verisi (AFAD/USGS gibi) burada
-# kullanılmıyor; o veri sayfadaki ayrı "Son Depremler" tablosunda yer
-# alıyor.
+# makaleleri olmalı, dünya geneli olmalı ve Türkçe gösterilmeli. İki kaynak
+# birleştirilir:
+# 1) Anadolu Ajansı — herkese açık RSS ("güncel" + "dünya" kategorileri),
+#    zaten Türkçe, anahtar kelimeyle filtrelenir, gerçek haber fotoğrafları
+#    sunar. Ama kapsamı AA'nın o an neyi haber yaptığıyla sınırlı.
+# 2) ReliefWeb (BM İnsani İşler Koordinasyon Ofisi - OCHA) — herkese açık,
+#    zaten sadece afet/insani kriz haberlerinden oluşan, gerçekten dünya
+#    genelini kapsayan RSS akışı. İçerik İngilizce olduğundan başlık/özet
+#    Google Translate'in resmi olmayan (API anahtarı gerektirmeyen) genel
+#    ağ geçidiyle Türkçeye çevrilir — bu resmi/garantili bir servis
+#    değildir, en iyi çaba ile çalışır; çeviri başarısız olursa orijinal
+#    İngilizce metin kullanılır. Görseli kullanılmaz (çoğunlukla PDF/rapor
+#    eki simgesi çıkıyor, gerçek fotoğraf değil) — bunun yerine sabit
+#    placeholder ikonu gösterilir.
+# Ham deprem event verisi (AFAD/USGS gibi) burada kullanılmıyor; o veri
+# sayfadaki ayrı "Son Depremler" tablosunda yer alıyor.
 AA_RSS_URLS = [
     "https://www.aa.com.tr/tr/rss/default?cat=guncel",
     "https://www.aa.com.tr/tr/rss/default?cat=dunya",
 ]
+RELIEFWEB_RSS_URL = "https://reliefweb.int/updates/rss.xml"
+GOOGLE_TRANSLATE_URL = "https://translate.googleapis.com/translate_a/single"
 DISASTER_KEYWORDS = [
     "deprem", "sel", "heyelan", "yangın", "hortum", "fırtına", "çığ",
     "tsunami", "afet", "göçük", "sağanak", "dolu", "kasırga",
@@ -226,13 +235,77 @@ def fetch_aa_disaster_news(limit=8):
     return items[:limit]
 
 
+def _translate_to_turkish(text):
+    """Google Translate'in resmi olmayan, API anahtarı gerektirmeyen genel
+    ağ geçidiyle İngilizce metni Türkçeye çevirir. Bu resmi/garantili bir
+    servis değildir — ulaşılamazsa veya beklenmedik formatta dönerse
+    orijinal metni değiştirmeden döner."""
+    if not text:
+        return text
+    try:
+        response = requests.get(
+            GOOGLE_TRANSLATE_URL,
+            params={"client": "gtx", "sl": "en", "tl": "tr", "dt": "t", "q": text},
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=5,
+        )
+        response.raise_for_status()
+        segments = response.json()[0]
+        return "".join(segment[0] for segment in segments if segment[0])
+    except (requests.RequestException, ValueError, IndexError, TypeError, KeyError) as exc:
+        logger.warning("Çeviri başarısız, orijinal metin kullanılıyor: %s", exc)
+        return text
+
+
+def fetch_reliefweb_disaster_news(limit=5):
+    """ReliefWeb'in (BM OCHA) herkese açık, dünya genelini kapsayan RSS
+    akışından afet/insani kriz haberlerini çekip başlık ve özeti Türkçeye
+    çevirir. Görseli kullanılmaz (çoğunlukla PDF/rapor eki simgesi çıkıyor);
+    şablon tarafında sabit placeholder ikonu gösterilir. Ulaşılamazsa/parse
+    edilemezse boş liste döner."""
+    try:
+        response = requests.get(RELIEFWEB_RSS_URL, timeout=6)
+        response.raise_for_status()
+        root = ElementTree.fromstring(response.content)
+    except (requests.RequestException, ElementTree.ParseError) as exc:
+        logger.warning("ReliefWeb RSS verisi alınamadı: %s", exc)
+        return []
+
+    items = []
+    for item in root.findall("./channel/item")[:limit]:
+        title_en = (item.findtext("title") or "").strip()
+        description_en = _strip_html(unescape(item.findtext("description") or ""))[:220]
+
+        pub_date_raw = item.findtext("pubDate")
+        try:
+            published_at = parsedate_to_datetime(pub_date_raw) if pub_date_raw else None
+        except (TypeError, ValueError):
+            published_at = None
+
+        items.append(
+            {
+                "title": _translate_to_turkish(title_en),
+                "summary": _translate_to_turkish(description_en),
+                "url": (item.findtext("link") or "").strip(),
+                "image": None,
+                "published_at": published_at or datetime.now(timezone.utc),
+                "source": "ReliefWeb (BM OCHA)",
+            }
+        )
+    return items
+
+
 def fetch_disaster_news(limit=8):
-    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA'nın dünya genelindeki
-    afetle ilgili Türkçe haberlerini döner. Sonuç 15 dakika önbelleklenir."""
+    """Anasayfadaki 'Afet Son Dakika' slider'ı için AA (Türkçe) + ReliefWeb
+    (dünya geneli, Türkçeye çevrilmiş) kaynaklarını birleştirip tarihe göre
+    sıralar. Sonuç 15 dakika önbelleklenir."""
     cached = cache.get(DISASTER_NEWS_CACHE_KEY)
     if cached is not None:
         return cached
 
-    result = fetch_aa_disaster_news(limit=limit)
+    combined = fetch_aa_disaster_news(limit=limit) + fetch_reliefweb_disaster_news(limit=5)
+    combined.sort(key=lambda item: item["published_at"], reverse=True)
+    result = combined[:limit]
+
     cache.set(DISASTER_NEWS_CACHE_KEY, result, DISASTER_NEWS_CACHE_TTL_SECONDS)
     return result

@@ -161,8 +161,15 @@ DISASTER_NEWS_CACHE_KEY = "disaster_news_feed"
 DISASTER_NEWS_CACHE_TTL_SECONDS = 900
 
 
+# Python'un varsayılan (Türkçe olmayan) .lower()'ı "İ"yi "i̇", "I"yı "i"ye
+# çevirir; "YANGIN" gibi büyük harfli başlıklarda "yangın" (ı) yerine
+# "yangin" (i) çıkar ve anahtar kelime eşleşmesi kaçar. Türkçe kurallarına
+# göre çeviriyoruz.
+_TURKISH_LOWER_MAP = str.maketrans({"İ": "i", "I": "ı"})
+
+
 def _matches_disaster_keywords(text):
-    text_lower = (text or "").lower()
+    text_lower = (text or "").translate(_TURKISH_LOWER_MAP).lower()
     return any(keyword in text_lower for keyword in DISASTER_KEYWORDS)
 
 

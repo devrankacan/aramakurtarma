@@ -9,6 +9,9 @@
     Aşağıdaki formdan <strong>.xlsx</strong> dosyası yükleyin. Sütun başlıkları
     şablon dosyasındaki gibi olmalı — kolon sırası önemli değil, başlık ismiyle eşleştirilir
     (yazım farkları toleranslıdır, örn. "T.C. Kimlik No" / "TC Kimlik No" ikisi de kabul edilir).
+    Derneğin resmi Personel Manifestosu dosyasını da doğrudan yükleyebilirsiniz —
+    başlık satırı sayfanın neresinde olursa olsun otomatik bulunur, üstteki
+    logo/tarih satırları sorun çıkarmaz.
   </p>
 
   <p>
@@ -28,16 +31,19 @@
     <tbody>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Adı Soyadı</td><td style="padding:6px 12px; border:1px solid #ddd;">Evet</td><td style="padding:6px 12px; border:1px solid #ddd;">Tek sütun; son kelime soyad kabul edilir. (İsterseniz bunun yerine ayrı "Ad" + "Soyad" sütunları da kullanabilirsiniz.)</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">T.C. Kimlik No</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;"><strong>Şifreli saklanır</strong>, sadece superuser görebilir, her görüntüleme kayıt altına alınır.</td></tr>
-      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Doğum Tarihi</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">GG.AA.YYYY</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Doğum Tarihi</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">GG.AA.YYYY (gerçek Excel tarih hücreleri de kabul edilir)</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Kan Grubu</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">"0 RH (+)", "AB RH (-)" gibi yazımlar otomatik ayrıştırılır.</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Engel Durumu</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;"><strong>Şifreli saklanır</strong>, sadece superuser görebilir.</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Mesleği</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Görevi</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">Sistemdeki <a href="{% url 'admin:teams_role_changelist' %}">Roller</a> listesiyle isim bazında eşleştirilir; eşleşirse o ekipteki rolü olarak kaydedilir, eşleşmezse atlanır (hata vermez).</td></tr>
-      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Telefon Numarası</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Telefon Numarası / GSM (Telefon)</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Yakınının Telefonu</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">Acil durum irtibat telefonu olarak kaydedilir.</td></tr>
-      <tr><td style="padding:6px 12px; border:1px solid #ddd;">e-posta</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">E-Posta</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Pasaport Bilgileri</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Ehliyet</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Adres</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">—</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Ekip Adı</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır*</td><td style="padding:6px 12px; border:1px solid #ddd;">Boşsa aşağıda seçtiğiniz "Hedef Ekip" kullanılır. Sistemdeki ekip adıyla birebir eşleşmeli.</td></tr>
-      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Ekip Şehri</td><td style="padding:6px 12px; border:1px solid #ddd;">Aynı isimde birden fazla ekip varsa</td><td style="padding:6px 12px; border:1px solid #ddd;">Ekibi kesin belirlemek için.</td></tr>
+      <tr><td style="padding:6px 12px; border:1px solid #ddd;">Ekip Şehri / İli</td><td style="padding:6px 12px; border:1px solid #ddd;">Aynı isimde birden fazla ekip varsa</td><td style="padding:6px 12px; border:1px solid #ddd;">"Ekip Adı" sütunuyla birlikte ekibi kesin belirlemek için kullanılır.</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Katılma Tarihi</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">GG.AA.YYYY, boşsa bugün.</td></tr>
       <tr><td style="padding:6px 12px; border:1px solid #ddd;">Kullanıcı Adı</td><td style="padding:6px 12px; border:1px solid #ddd;">Hayır</td><td style="padding:6px 12px; border:1px solid #ddd;">Boşsa Ad.Soyad'dan otomatik oluşturulur. <strong>Mevcut birini yeni bir ekibe eklemek için</strong> mevcut kullanıcı adını yazın, aksi halde ikinci bir hesap açılır.</td></tr>
     </tbody>

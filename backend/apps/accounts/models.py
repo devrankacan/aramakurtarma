@@ -13,6 +13,7 @@ class User(AbstractUser):
     birth_date = models.DateField("Doğum Tarihi", null=True, blank=True)
     occupation = models.CharField("Mesleği", max_length=150, blank=True)
     driving_license = models.CharField("Ehliyet", max_length=50, blank=True)
+    passport_info = models.CharField("Pasaport Bilgileri", max_length=100, blank=True)
     address = models.TextField("Adres", blank=True)
     avatar = models.ImageField(
         "Profil Fotoğrafı",
@@ -64,6 +65,9 @@ class UserHealthProfile(models.Model):
     )
     allergies = EncryptedTextField(
         "Alerjiler", blank=True, help_text="İlaç, gıda ya da diğer bilinen alerjiler."
+    )
+    disability_status = EncryptedTextField(
+        "Engel Durumu", blank=True, help_text="Varsa engel durumu ve derecesi."
     )
     fitness_notes = EncryptedTextField(
         "Fiziksel Uygunluk Notları",

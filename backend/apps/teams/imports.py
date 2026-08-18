@@ -51,7 +51,9 @@ TEMPLATE_HEADERS = [
     "Kan Grubu",
     "Engel Durumu",
     "GSM (Telefon)",
+    "Yakınının Telefonu",
     "E-Posta",
+    "Adres",
     "Pasaport Bilgileri",
     "Ehliyet",
 ]
@@ -63,7 +65,9 @@ TEMPLATE_EXAMPLE_ROW = [
     "0 RH (+)",
     "YOK",
     "0555 000 00 00",
+    "0555 111 11 11",
     "ayse.yilmaz@example.com",
+    "Örnek Mahallesi, Örnek Sokak No:1, İstanbul",
     "YOK",
     "B",
 ]

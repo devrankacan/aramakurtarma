@@ -1,0 +1,8 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="{% url 'admin:teams_teammembership_import' %}" class="button">İçe Aktar</a>
+  </li>
+  {{ block.super }}
+{% endblock %}

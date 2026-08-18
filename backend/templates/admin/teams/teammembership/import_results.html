@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="module" style="padding: 1.5rem; max-width: 900px;">
+  <h2>İçe Aktarma Sonuçları</h2>
+
+  <p>
+    <strong>{{ result.created_count }}</strong> satır başarıyla işlendi,
+    <strong>{{ result.error_count }}</strong> satırda hata oluştu.
+  </p>
+
+  {% if result.rows %}
+  <table style="width:100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0;">
+    <thead>
+      <tr style="background:#f8f8f8;">
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Satır</th>
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Ad Soyad</th>
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Durum</th>
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Detay</th>
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Kullanıcı Adı</th>
+        <th style="text-align:left; padding:6px 10px; border:1px solid #ddd;">Geçici Parola</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in result.rows %}
+      <tr style="{% if row.status == 'error' %}background:#fbeaea;{% elif row.status == 'skipped' %}background:#fff8e6;{% else %}background:#eafaf0;{% endif %}">
+        <td style="padding:6px 10px; border:1px solid #ddd;">{{ row.row }}</td>
+        <td style="padding:6px 10px; border:1px solid #ddd;">{{ row.ad }} {{ row.soyad }}</td>
+        <td style="padding:6px 10px; border:1px solid #ddd;">
+          {% if row.status == "error" %}❌ Hata
+          {% elif row.status == "skipped" %}⚠️ Atlandı
+          {% elif row.status == "created" %}✅ Yeni hesap
+          {% else %}✅ Eklendi{% endif %}
+        </td>
+        <td style="padding:6px 10px; border:1px solid #ddd;">{{ row.message }}</td>
+        <td style="padding:6px 10px; border:1px solid #ddd;">{{ row.username|default:"—" }}</td>
+        <td style="padding:6px 10px; border:1px solid #ddd; font-family: monospace;">{{ row.password|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if result.created_count %}
+  <p class="help">
+    "Geçici Parola" sütunu sadece <strong>yeni oluşturulan</strong> hesaplar için doludur —
+    bu bilgiyi ilgili kişiye güvenli bir kanaldan iletin, bu sayfa tekrar gösterilmeyecektir.
+  </p>
+  {% endif %}
+  {% else %}
+  <p>Dosyada işlenecek satır bulunamadı.</p>
+  {% endif %}
+
+  <div class="submit-row">
+    <a href="{% url 'admin:teams_teammembership_import' %}" class="button">Başka Dosya İçe Aktar</a>
+    <a href="{% url 'admin:teams_teammembership_changelist' %}" class="button">Ekip Üyeliklerine Dön</a>
+  </div>
+</div>
+{% endblock %}
